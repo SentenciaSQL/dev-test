@@ -1,0 +1,89 @@
+openapi: 3.0.3
+info:
+  title: AppTrial API — Phases 7–9
+  version: 0.9.0
+servers:
+  - url: http://localhost:8080/api/v1
+paths:
+  /notifications:
+    get:
+      security: [{ bearerAuth: [] }]
+      responses: { '200': { description: Inbox } }
+  /notifications/unread-count:
+    get:
+      security: [{ bearerAuth: [] }]
+      responses: { '200': { description: Unread count } }
+  /notifications/{id}/read:
+    post:
+      security: [{ bearerAuth: [] }]
+      responses: { '200': { description: Marked read } }
+  /notifications/read-all:
+    post:
+      security: [{ bearerAuth: [] }]
+      responses: { '204': { description: All read } }
+  /push-tokens:
+    post:
+      security: [{ bearerAuth: [] }]
+      responses: { '204': { description: Registered } }
+    delete:
+      security: [{ bearerAuth: [] }]
+      responses: { '204': { description: Unregistered } }
+  /me/notification-preferences:
+    get:
+      security: [{ bearerAuth: [] }]
+      responses: { '200': { description: Prefs map } }
+    put:
+      security: [{ bearerAuth: [] }]
+      responses: { '200': { description: Updated prefs } }
+  /analytics/me:
+    get:
+      security: [{ bearerAuth: [] }]
+      responses: { '200': { description: Developer analytics } }
+  /analytics/platform:
+    get:
+      security: [{ bearerAuth: [] }]
+      responses: { '200': { description: Platform analytics (ADMIN) } }
+  /ai/campaigns/{campaignId}/insights:
+    get:
+      security: [{ bearerAuth: [] }]
+      responses: { '200': { description: AI or heuristic insights } }
+  /admin/users:
+    get:
+      security: [{ bearerAuth: [] }]
+      responses: { '200': { description: Users (ADMIN) } }
+  /admin/users/{userId}/suspend:
+    post:
+      security: [{ bearerAuth: [] }]
+      responses: { '200': { description: Suspended } }
+  /admin/users/{userId}/activate:
+    post:
+      security: [{ bearerAuth: [] }]
+      responses: { '200': { description: Activated } }
+  /admin/users/{userId}/credits/adjust:
+    post:
+      security: [{ bearerAuth: [] }]
+      responses: { '204': { description: Adjusted } }
+  /admin/campaigns/{campaignId}/cancel:
+    post:
+      security: [{ bearerAuth: [] }]
+      responses: { '204': { description: Force cancelled } }
+  /admin/fraud-signals:
+    get:
+      security: [{ bearerAuth: [] }]
+      responses: { '200': { description: Heuristic fraud signals } }
+  /admin/audit-logs:
+    get:
+      security: [{ bearerAuth: [] }]
+      responses: { '200': { description: Recent audit entries } }
+  /campaigns/{campaignId}/events:
+    get:
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: text/event-stream campaign progress
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

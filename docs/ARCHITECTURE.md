@@ -2,7 +2,7 @@
 
 ## 1. Visión
 
-Monolito modular en **Kotlin + Spring Boot 4** como única autoridad de negocio, y cliente **Flutter + Dart** exclusivo para Android. Comunicación REST/JSON; SSE opcional más adelante para progreso de campañas.
+Monolito modular en **Kotlin + Spring Boot 4** como única autoridad de negocio, y cliente **Flutter + Dart** exclusivo para Android. Comunicación REST/JSON; SSE para progreso de campañas (`/campaigns/{id}/events`).
 
 ```
 ┌──────────────────────────┐
@@ -80,6 +80,8 @@ Organización por feature (`lib/features/<feature>/{presentation,domain,data}`) 
 | tester_groups / missions / evidence / feedback | Flujo tester |
 | wallet / billing / subscriptions | Solo UI; backend decide montos |
 | notifications / settings | Preferencias y FCM |
+| analytics / ai_assistant | Métricas y insights |
+| administration | Moderación, antifraude, auditoría |
 
 ## 5. Seguridad
 

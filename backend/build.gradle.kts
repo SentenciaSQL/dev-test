@@ -18,6 +18,7 @@ java {
 
 repositories {
 	mavenCentral()
+	maven { url = uri("https://repo.spring.io/milestone") }
 }
 
 dependencies {
@@ -36,6 +37,10 @@ dependencies {
 	implementation("io.jsonwebtoken:jjwt-api:0.12.6")
 	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.6")
 	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.6")
+
+	// Spring AI (Boot 4 line via milestone BOM until GA alignment is pinned)
+	implementation(platform("org.springframework.ai:spring-ai-bom:2.0.0-M3"))
+	implementation("org.springframework.ai:spring-ai-starter-model-openai")
 
 	runtimeOnly("org.postgresql:postgresql")
 }

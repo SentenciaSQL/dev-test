@@ -31,6 +31,7 @@ class AuthUser {
 
   bool get isDeveloper => roles.contains('DEVELOPER');
   bool get isTester => roles.contains('TESTER');
+  bool get isAdmin => roles.contains('ADMIN');
 }
 
 class AuthSession {

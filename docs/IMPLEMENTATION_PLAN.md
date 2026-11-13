@@ -21,10 +21,11 @@
 | 6 | Play Billing + suscripciones + RTDN | Fase 5, Play Console |
 | 7 | FCM + analíticas básicas | Fases previas |
 | 8 | Spring AI + admin avanzado | Control de costos |
+| 9 | SSE campañas + antifraude + auditoría | Fases 7–8 |
 
 ## Estado actual del repositorio
 
-**Fases 0–6:** además misiones/evidencias/feedback, recompensas y SPEND por plaza confirmada, catálogo Play + verify de compras/suscripciones (MOCK/GOOGLE) y RTDN stub.
+**Fases 0–9:** misiones/evidencias/feedback, ledger TC, Play Billing, notificaciones FCM (MOCK/FIREBASE stub), analíticas, Spring AI insights (con fallback heurístico), admin (suspend/créditos/antifraude), SSE de campañas y audit logs.
 
 ## DoD por fase
 

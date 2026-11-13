@@ -35,7 +35,7 @@ infra/       docker-compose (Postgres, Redis, LocalStack S3)
 
 ## Estado actual
 
-**Fases 0–6:** misiones/evidencias/feedback, ledger con recompensas y SPEND por plaza, Google Play Billing (verify MOCK/GOOGLE + RTDN stub).
+**Fases 0–9:** misiones/evidencias/feedback, ledger TC, Google Play Billing, notificaciones FCM, analíticas, Spring AI (heurística sin API key), administración/antifraude/auditoría y SSE de campañas.
 
 No se incluyen tests automatizados (restricción del proyecto).
 

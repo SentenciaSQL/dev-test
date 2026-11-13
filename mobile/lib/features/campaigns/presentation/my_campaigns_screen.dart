@@ -1,11 +1,13 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../ai_assistant/presentation/ai_insights_screen.dart';
 import '../../applications/data/applications_repository.dart';
 import '../../applications/domain/application_models.dart';
 import '../../tester_groups/presentation/campaign_groups_screen.dart';
 import '../data/campaigns_repository.dart';
 import '../domain/campaign_models.dart';
+import 'campaign_events_screen.dart';
 
 final myCampaignsProvider =
     FutureProvider.autoDispose<List<CampaignItem>>((ref) {
@@ -53,6 +55,35 @@ class MyCampaignsScreen extends ConsumerWidget {
                           Navigator.of(context).push(
                             MaterialPageRoute<void>(
                               builder: (_) => CampaignGroupsScreen(
+                                campaignId: c.id,
+                                campaignName: c.name,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    IconButton(
+                      tooltip: 'AI insights',
+                      icon: const Icon(Icons.auto_awesome_outlined),
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) => AiInsightsScreen(
+                              campaignId: c.id,
+                              campaignName: c.name,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    if (c.status != 'DRAFT')
+                      IconButton(
+                        tooltip: 'Eventos SSE',
+                        icon: const Icon(Icons.stream_outlined),
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => CampaignEventsScreen(
                                 campaignId: c.id,
                                 campaignName: c.name,
                               ),
