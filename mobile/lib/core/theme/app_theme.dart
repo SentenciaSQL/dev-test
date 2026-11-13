@@ -6,7 +6,7 @@ import 'app_typography.dart';
 
 class AppTheme {
   static ThemeData light() {
-    final scheme = ColorScheme.light(
+    const scheme = ColorScheme.light(
       primary: AppColors.primary,
       onPrimary: Colors.white,
       primaryContainer: AppColors.primarySoft,
@@ -14,7 +14,7 @@ class AppTheme {
       secondary: AppColors.accent,
       onSecondary: Colors.white,
       secondaryContainer: AppColors.accentSoft,
-      onSecondaryContainer: const Color(0xFF0A5C55),
+      onSecondaryContainer: Color(0xFF0A5C55),
       tertiary: AppColors.highlight,
       error: AppColors.error,
       onError: Colors.white,
@@ -24,7 +24,7 @@ class AppTheme {
       onSurfaceVariant: AppColors.inkMuted,
       outline: AppColors.border,
       outlineVariant: AppColors.border,
-      surfaceContainerHighest: const Color(0xFFECEFF5),
+      surfaceContainerHighest: Color(0xFFECEFF5),
     );
 
     return ThemeData(
@@ -165,16 +165,16 @@ class AppTheme {
   }
 
   static ThemeData dark() {
-    final scheme = ColorScheme.dark(
-      primary: const Color(0xFF8AA4FF),
-      onPrimary: const Color(0xFF0A1A4A),
-      primaryContainer: const Color(0xFF24356A),
-      secondary: const Color(0xFF5EEAD4),
-      onSecondary: const Color(0xFF003731),
-      error: const Color(0xFFFF8A8A),
+    const scheme = ColorScheme.dark(
+      primary: Color(0xFF8AA4FF),
+      onPrimary: Color(0xFF0A1A4A),
+      primaryContainer: Color(0xFF24356A),
+      secondary: Color(0xFF5EEAD4),
+      onSecondary: Color(0xFF003731),
+      error: Color(0xFFFF8A8A),
       surface: AppColors.surfaceDark,
       onSurface: Colors.white,
-      onSurfaceVariant: const Color(0xFFB7BECF),
+      onSurfaceVariant: Color(0xFFB7BECF),
       outline: AppColors.borderDark,
     );
     return ThemeData(
@@ -189,9 +189,9 @@ class AppTheme {
         elevation: 0,
         titleTextStyle: AppTypography.dark().titleLarge,
       ),
-      navigationBarTheme: NavigationBarThemeData(
+      navigationBarTheme: const NavigationBarThemeData(
         backgroundColor: AppColors.surfaceDark,
-        indicatorColor: const Color(0xFF24356A),
+        indicatorColor: Color(0xFF24356A),
         elevation: 0,
         height: 68,
       ),
