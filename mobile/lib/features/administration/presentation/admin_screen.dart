@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/l10n/l10n_ext.dart';
 import '../data/admin_repository.dart';
 
 final adminUsersProvider =
@@ -23,6 +24,7 @@ class AdminScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final users = ref.watch(adminUsersProvider);
     final fraud = ref.watch(fraudSignalsProvider);
     final audit = ref.watch(auditLogsProvider);
@@ -31,12 +33,12 @@ class AdminScreen extends ConsumerWidget {
       length: 3,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Administración'),
-          bottom: const TabBar(
+          title: Text(l10n.adminTitle),
+          bottom: TabBar(
             tabs: [
-              Tab(text: 'Usuarios'),
-              Tab(text: 'Antifraude'),
-              Tab(text: 'Auditoría'),
+              Tab(text: l10n.usersTab),
+              Tab(text: l10n.fraudTab),
+              Tab(text: l10n.auditTab),
             ],
           ),
         ),
@@ -45,7 +47,7 @@ class AdminScreen extends ConsumerWidget {
             users.when(
               data: (list) {
                 if (list.isEmpty) {
-                  return const Center(child: Text('Sin usuarios.'));
+                  return Center(child: Text(l10n.noUsers));
                 }
                 return ListView.separated(
                   itemCount: list.length,
@@ -80,23 +82,27 @@ class AdminScreen extends ConsumerWidget {
                           } catch (e) {
                             if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Error: $e')),
+                                SnackBar(
+                                  content: Text(
+                                    context.l10n.errorWithDetails('$e'),
+                                  ),
+                                ),
                               );
                             }
                           }
                         },
-                        itemBuilder: (_) => const [
+                        itemBuilder: (_) => [
                           PopupMenuItem(
                             value: 'suspend',
-                            child: Text('Suspender'),
+                            child: Text(l10n.suspend),
                           ),
                           PopupMenuItem(
                             value: 'activate',
-                            child: Text('Activar'),
+                            child: Text(l10n.activate),
                           ),
                           PopupMenuItem(
                             value: 'credits',
-                            child: Text('Ajustar +10 TC'),
+                            child: Text(l10n.adjustCreditsPlus10),
                           ),
                         ],
                       ),
@@ -105,12 +111,12 @@ class AdminScreen extends ConsumerWidget {
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Center(child: Text('Error: $e')),
+              error: (e, _) => Center(child: Text(l10n.errorWithDetails('$e'))),
             ),
             fraud.when(
               data: (list) {
                 if (list.isEmpty) {
-                  return const Center(child: Text('Sin señales de fraude.'));
+                  return Center(child: Text(l10n.noFraudSignals));
                 }
                 return ListView.separated(
                   itemCount: list.length,
@@ -126,12 +132,12 @@ class AdminScreen extends ConsumerWidget {
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Center(child: Text('Error: $e')),
+              error: (e, _) => Center(child: Text(l10n.errorWithDetails('$e'))),
             ),
             audit.when(
               data: (list) {
                 if (list.isEmpty) {
-                  return const Center(child: Text('Sin auditoría.'));
+                  return Center(child: Text(l10n.noAudit));
                 }
                 return ListView.separated(
                   itemCount: list.length,
@@ -149,7 +155,7 @@ class AdminScreen extends ConsumerWidget {
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Center(child: Text('Error: $e')),
+              error: (e, _) => Center(child: Text(l10n.errorWithDetails('$e'))),
             ),
           ],
         ),

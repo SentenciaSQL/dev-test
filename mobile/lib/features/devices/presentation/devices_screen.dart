@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/l10n/l10n_ext.dart';
 import '../data/devices_repository.dart';
 
 final devicesProvider = FutureProvider.autoDispose<List<DeviceItem>>((ref) {
@@ -12,18 +13,19 @@ class DevicesScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final asyncDevices = ref.watch(devicesProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Dispositivos')),
+      appBar: AppBar(title: Text(l10n.devicesTitle)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddDialog(context, ref),
         icon: const Icon(Icons.add),
-        label: const Text('Registrar'),
+        label: Text(l10n.registerDevice),
       ),
       body: asyncDevices.when(
         data: (devices) {
           if (devices.isEmpty) {
-            return const Center(child: Text('Aún no hay dispositivos registrados.'));
+            return Center(child: Text(l10n.noDevicesYet));
           }
           return ListView.separated(
             itemCount: devices.length,
@@ -48,7 +50,7 @@ class DevicesScreen extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error: $e')),
+        error: (e, _) => Center(child: Text(l10n.errorWithDetails('$e'))),
       ),
     );
   }
@@ -63,22 +65,43 @@ class DevicesScreen extends ConsumerWidget {
 
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Registrar dispositivo'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(controller: fingerprint, decoration: const InputDecoration(labelText: 'Fingerprint')),
-            TextField(controller: model, decoration: const InputDecoration(labelText: 'Modelo')),
-            TextField(controller: manufacturer, decoration: const InputDecoration(labelText: 'Fabricante')),
-            TextField(controller: androidVersion, decoration: const InputDecoration(labelText: 'Android')),
+      builder: (context) {
+        final l10n = context.l10n;
+        return AlertDialog(
+          title: Text(l10n.registerDevice),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: fingerprint,
+                decoration: InputDecoration(labelText: l10n.fingerprint),
+              ),
+              TextField(
+                controller: model,
+                decoration: InputDecoration(labelText: l10n.model),
+              ),
+              TextField(
+                controller: manufacturer,
+                decoration: InputDecoration(labelText: l10n.manufacturer),
+              ),
+              TextField(
+                controller: androidVersion,
+                decoration: InputDecoration(labelText: l10n.androidVersion),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(l10n.cancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: Text(l10n.save),
+            ),
           ],
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancelar')),
-          FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Guardar')),
-        ],
-      ),
+        );
+      },
     );
 
     if (confirmed == true) {

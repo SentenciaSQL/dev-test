@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/l10n/auth_error_l10n.dart';
 import '../data/auth_repository.dart';
 import '../domain/auth_models.dart';
 
@@ -98,15 +99,15 @@ class AuthController extends StateNotifier<AuthState> {
   String _message(Object e) {
     if (e is DioException) {
       final code = e.response?.statusCode;
-      if (code == 401) return 'Email o contraseña incorrectos.';
-      if (code == 409) return 'Ese email ya está registrado.';
-      if (code == 400) return 'Revisa los datos e inténtalo de nuevo.';
+      if (code == 401) return AuthErrorCodes.invalidCredentials;
+      if (code == 409) return AuthErrorCodes.emailTaken;
+      if (code == 400) return AuthErrorCodes.badRequest;
       if (e.type == DioExceptionType.connectionError ||
           e.type == DioExceptionType.connectionTimeout) {
-        return 'No hay conexión con el servidor.';
+        return AuthErrorCodes.noConnection;
       }
     }
-    return 'No se pudo completar la operación.';
+    return AuthErrorCodes.generic;
   }
 }
 

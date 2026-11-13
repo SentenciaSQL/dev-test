@@ -2,6 +2,8 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/config/app_config.dart';
+import 'core/l10n/l10n_ext.dart';
+import 'core/l10n/locale_controller.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/widgets/app_widgets.dart';
@@ -18,14 +20,24 @@ class AppTrialApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final auth = ref.watch(authControllerProvider);
+    final locale = ref.watch(localeControllerProvider);
+
     if (!auth.initialized) {
       return MaterialApp(
         title: AppConfig.appName,
         theme: AppTheme.light(),
         darkTheme: AppTheme.dark(),
         themeMode: ThemeMode.system,
-        home: const Scaffold(
-          body: AppScaffoldBackground(child: LoadingState(label: 'Preparando AppTrial…')),
+        locale: locale,
+        supportedLocales: supportedAppLocales,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        localeResolutionCallback: (_, _) => locale,
+        home: Builder(
+          builder: (context) => Scaffold(
+            body: AppScaffoldBackground(
+              child: LoadingState(label: context.l10n.preparingApp),
+            ),
+          ),
         ),
       );
     }
@@ -36,6 +48,11 @@ class AppTrialApp extends ConsumerWidget {
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
       themeMode: ThemeMode.system,
+      locale: locale,
+      supportedLocales: supportedAppLocales,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      // Never follow device locale — English until the user picks a language.
+      localeResolutionCallback: (_, _) => locale,
       routerConfig: router,
     );
   }

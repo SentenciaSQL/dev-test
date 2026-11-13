@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/l10n/l10n_ext.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/widgets/app_widgets.dart';
 import '../../ai_assistant/presentation/ai_insights_screen.dart';
@@ -21,12 +22,13 @@ class MyCampaignsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final asyncCampaigns = ref.watch(myCampaignsProvider);
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showCreateDialog(context, ref),
         icon: const Icon(Icons.add_rounded),
-        label: const Text('Nueva campaña'),
+        label: Text(l10n.newCampaign),
       ),
       body: AppScaffoldBackground(
         child: SafeArea(
@@ -34,7 +36,7 @@ class MyCampaignsScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(
+                padding: const EdgeInsetsDirectional.fromSTEB(
                   AppSpacing.lg,
                   AppSpacing.md,
                   AppSpacing.lg,
@@ -43,9 +45,9 @@ class MyCampaignsScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Mis campañas', style: Theme.of(context).textTheme.headlineSmall),
+                    Text(l10n.myCampaignsTitle, style: Theme.of(context).textTheme.headlineSmall),
                     Text(
-                      'Borradores, reclutamiento y seguimiento',
+                      l10n.myCampaignsSubtitle,
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ],
@@ -57,16 +59,16 @@ class MyCampaignsScreen extends ConsumerWidget {
                     if (campaigns.isEmpty) {
                       return EmptyState(
                         icon: Icons.campaign_outlined,
-                        title: 'Aún no tienes campañas',
-                        message: 'Crea un borrador y publícalo para empezar a reclutar.',
-                        actionLabel: 'Nueva campaña',
+                        title: l10n.stillNoCampaigns,
+                        message: l10n.stillNoCampaignsMessage,
+                        actionLabel: l10n.newCampaign,
                         onAction: () => _showCreateDialog(context, ref),
                       );
                     }
                     return RefreshIndicator(
                       onRefresh: () async => ref.invalidate(myCampaignsProvider),
                       child: ListView.separated(
-                        padding: const EdgeInsets.fromLTRB(
+                        padding: const EdgeInsetsDirectional.fromSTEB(
                           AppSpacing.lg,
                           0,
                           AppSpacing.lg,
@@ -81,16 +83,16 @@ class MyCampaignsScreen extends ConsumerWidget {
                             subtitle: c.applicationName ?? c.applicationId,
                             status: c.status,
                             meta: [
-                              '${c.targetTesters} testers',
-                              '${c.totalCostTc} TC',
-                              '${c.durationDays} días',
+                              l10n.testersCount(c.targetTesters),
+                              l10n.tcAmount(c.totalCostTc),
+                              l10n.daysCount(c.durationDays),
                             ],
                             trailing: Wrap(
                               spacing: 4,
                               children: [
                                 if (c.status != 'DRAFT')
                                   IconButton.filledTonal(
-                                    tooltip: 'Grupos',
+                                    tooltip: l10n.groupsTooltip,
                                     onPressed: () {
                                       Navigator.of(context).push(
                                         MaterialPageRoute<void>(
@@ -104,7 +106,7 @@ class MyCampaignsScreen extends ConsumerWidget {
                                     icon: const Icon(Icons.groups_outlined),
                                   ),
                                 IconButton.filledTonal(
-                                  tooltip: 'AI insights',
+                                  tooltip: l10n.aiInsightsTooltip,
                                   onPressed: () {
                                     Navigator.of(context).push(
                                       MaterialPageRoute<void>(
@@ -119,7 +121,7 @@ class MyCampaignsScreen extends ConsumerWidget {
                                 ),
                                 if (c.status != 'DRAFT')
                                   IconButton.filledTonal(
-                                    tooltip: 'SSE',
+                                    tooltip: l10n.sseTooltip,
                                     onPressed: () {
                                       Navigator.of(context).push(
                                         MaterialPageRoute<void>(
@@ -134,7 +136,7 @@ class MyCampaignsScreen extends ConsumerWidget {
                                   ),
                                 if (c.status == 'DRAFT')
                                   IconButton.filledTonal(
-                                    tooltip: 'Publicar',
+                                    tooltip: l10n.publishTooltip,
                                     onPressed: () async {
                                       try {
                                         await ref
@@ -144,7 +146,9 @@ class MyCampaignsScreen extends ConsumerWidget {
                                       } catch (e) {
                                         if (context.mounted) {
                                           ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(content: Text('Publicar falló: $e')),
+                                            SnackBar(
+                                              content: Text(l10n.publishFailed('$e')),
+                                            ),
                                           );
                                         }
                                       }
@@ -155,7 +159,7 @@ class MyCampaignsScreen extends ConsumerWidget {
                                     c.status != 'COMPLETED' &&
                                     c.status != 'EXPIRED')
                                   IconButton.filledTonal(
-                                    tooltip: 'Cancelar',
+                                    tooltip: l10n.cancelTooltip,
                                     onPressed: () async {
                                       await ref
                                           .read(campaignsRepositoryProvider)
@@ -191,9 +195,10 @@ class MyCampaignsScreen extends ConsumerWidget {
       apps = await ref.read(applicationsRepositoryProvider).listMine();
     } catch (_) {}
     if (!context.mounted) return;
+    final l10n = context.l10n;
     if (apps.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Registra una aplicación primero')),
+        SnackBar(content: Text(l10n.registerAppFirst)),
       );
       return;
     }
@@ -207,82 +212,85 @@ class MyCampaignsScreen extends ConsumerWidget {
 
     final ok = await showDialog<bool>(
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
-          title: const Text('Nueva campaña'),
-          content: Form(
-            key: formKey,
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  DropdownButtonFormField<ApplicationItem>(
-                    initialValue: selectedApp,
-                    items: apps
-                        .map(
-                          (a) => DropdownMenuItem(
-                            value: a,
-                            child: Text(a.name),
-                          ),
-                        )
-                        .toList(),
-                    onChanged: (v) => setState(() => selectedApp = v ?? selectedApp),
-                    decoration: const InputDecoration(labelText: 'Aplicación'),
-                  ),
-                  TextFormField(
-                    controller: name,
-                    decoration: const InputDecoration(labelText: 'Nombre'),
-                    validator: (v) =>
-                        v == null || v.trim().length < 2 ? 'Requerido' : null,
-                  ),
-                  TextFormField(
-                    controller: description,
-                    decoration: const InputDecoration(labelText: 'Descripción'),
-                    maxLines: 2,
-                  ),
-                  DropdownButtonFormField<int>(
-                    initialValue: durationDays,
-                    items: const [
-                      DropdownMenuItem(value: 7, child: Text('7 días (12 TC/tester)')),
-                      DropdownMenuItem(value: 14, child: Text('14 días (20 TC/tester)')),
-                      DropdownMenuItem(value: 30, child: Text('30 días (30 TC/tester)')),
-                    ],
-                    onChanged: (v) => setState(() => durationDays = v ?? 14),
-                    decoration: const InputDecoration(labelText: 'Duración'),
-                  ),
-                  TextFormField(
-                    initialValue: '$targetTesters',
-                    decoration: const InputDecoration(
-                      labelText: 'Testers objetivo (mín. 12, default 15)',
+      builder: (context) {
+        final dialogL10n = context.l10n;
+        return StatefulBuilder(
+          builder: (context, setState) => AlertDialog(
+            title: Text(dialogL10n.newCampaignDialogTitle),
+            content: Form(
+              key: formKey,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    DropdownButtonFormField<ApplicationItem>(
+                      initialValue: selectedApp,
+                      items: apps
+                          .map(
+                            (a) => DropdownMenuItem(
+                              value: a,
+                              child: Text(a.name),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (v) => setState(() => selectedApp = v ?? selectedApp),
+                      decoration: InputDecoration(labelText: dialogL10n.application),
                     ),
-                    keyboardType: TextInputType.number,
-                    onChanged: (v) => targetTesters = int.tryParse(v) ?? 15,
-                    validator: (v) {
-                      final n = int.tryParse(v ?? '');
-                      if (n == null || n < 12) return 'Mínimo 12';
-                      return null;
-                    },
-                  ),
-                ],
+                    TextFormField(
+                      controller: name,
+                      decoration: InputDecoration(labelText: dialogL10n.name),
+                      validator: (v) =>
+                          v == null || v.trim().length < 2 ? dialogL10n.required : null,
+                    ),
+                    TextFormField(
+                      controller: description,
+                      decoration: InputDecoration(labelText: dialogL10n.description),
+                      maxLines: 2,
+                    ),
+                    DropdownButtonFormField<int>(
+                      initialValue: durationDays,
+                      items: [
+                        DropdownMenuItem(value: 7, child: Text(dialogL10n.duration7)),
+                        DropdownMenuItem(value: 14, child: Text(dialogL10n.duration14)),
+                        DropdownMenuItem(value: 30, child: Text(dialogL10n.duration30)),
+                      ],
+                      onChanged: (v) => setState(() => durationDays = v ?? 14),
+                      decoration: InputDecoration(labelText: dialogL10n.duration),
+                    ),
+                    TextFormField(
+                      initialValue: '$targetTesters',
+                      decoration: InputDecoration(
+                        labelText: dialogL10n.targetTestersLabel,
+                      ),
+                      keyboardType: TextInputType.number,
+                      onChanged: (v) => targetTesters = int.tryParse(v) ?? 15,
+                      validator: (v) {
+                        final n = int.tryParse(v ?? '');
+                        if (n == null || n < 12) return dialogL10n.minimum12;
+                        return null;
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: Text(dialogL10n.cancel),
+              ),
+              FilledButton(
+                onPressed: () {
+                  if (formKey.currentState!.validate()) {
+                    Navigator.pop(context, true);
+                  }
+                },
+                child: Text(dialogL10n.createDraft),
+              ),
+            ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancelar'),
-            ),
-            FilledButton(
-              onPressed: () {
-                if (formKey.currentState!.validate()) {
-                  Navigator.pop(context, true);
-                }
-              },
-              child: const Text('Crear borrador'),
-            ),
-          ],
-        ),
-      ),
+        );
+      },
     );
 
     if (ok == true) {
@@ -300,7 +308,7 @@ class MyCampaignsScreen extends ConsumerWidget {
       } catch (e) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('No se pudo crear: $e')),
+            SnackBar(content: Text(context.l10n.couldNotCreate('$e'))),
           );
         }
       }

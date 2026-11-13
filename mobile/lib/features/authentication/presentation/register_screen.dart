@@ -2,9 +2,12 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/l10n/auth_error_l10n.dart';
+import '../../../core/l10n/l10n_ext.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/widgets/app_widgets.dart';
+import '../../../core/widgets/language_selector.dart';
 import 'auth_controller.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
@@ -38,7 +41,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     };
     if (roles.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Selecciona al menos un rol')),
+        SnackBar(content: Text(context.l10n.selectAtLeastOneRole)),
       );
       return;
     }
@@ -56,6 +59,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     final auth = ref.watch(authControllerProvider);
+    final l10n = context.l10n;
     return Scaffold(
       body: AppScaffoldBackground(
         child: SafeArea(
@@ -69,15 +73,23 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      IconButton(
-                        alignment: Alignment.centerLeft,
-                        onPressed: () => context.go('/login'),
-                        icon: const Icon(Icons.arrow_back_rounded),
+                      Row(
+                        children: [
+                          IconButton(
+                            onPressed: () => context.go('/login'),
+                            icon: const Icon(Icons.arrow_back),
+                          ),
+                          const Spacer(),
+                          const LanguageSelector(compact: true),
+                        ],
                       ),
-                      Text('Crear cuenta', style: Theme.of(context).textTheme.headlineMedium),
+                      Text(
+                        l10n.registerTitle,
+                        style: Theme.of(context).textTheme.headlineMedium,
+                      ),
                       const SizedBox(height: 6),
                       Text(
-                        'Empieza a publicar campañas o a probar apps en minutos.',
+                        l10n.registerSubtitle,
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                       const SizedBox(height: AppSpacing.lg),
@@ -86,49 +98,57 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           children: [
                             CustomTextField(
                               controller: _name,
-                              label: 'Nombre',
+                              label: l10n.displayName,
                               prefixIcon: Icons.person_outline_rounded,
                               validator: (v) =>
-                                  v == null || v.trim().length < 2 ? 'Nombre requerido' : null,
+                                  v == null || v.trim().length < 2
+                                      ? l10n.nameRequired
+                                      : null,
                             ),
                             const SizedBox(height: AppSpacing.sm),
                             CustomTextField(
                               controller: _email,
-                              label: 'Email',
+                              label: l10n.email,
                               keyboardType: TextInputType.emailAddress,
                               prefixIcon: Icons.mail_outline_rounded,
                               validator: (v) =>
-                                  v == null || !v.contains('@') ? 'Email inválido' : null,
+                                  v == null || !v.contains('@')
+                                      ? l10n.invalidEmail
+                                      : null,
                             ),
                             const SizedBox(height: AppSpacing.sm),
                             CustomTextField(
                               controller: _password,
-                              label: 'Contraseña',
+                              label: l10n.password,
                               obscureText: true,
                               prefixIcon: Icons.lock_outline_rounded,
                               validator: (v) =>
-                                  v == null || v.length < 8 ? 'Mínimo 8 caracteres' : null,
+                                  v == null || v.length < 8
+                                      ? l10n.passwordMinLength
+                                      : null,
                             ),
                             const SizedBox(height: AppSpacing.md),
                             _RoleTile(
                               selected: _asDeveloper,
-                              title: 'Soy desarrollador',
-                              subtitle: 'Publico apps y campañas de testing',
+                              title: l10n.roleDeveloperTitle,
+                              subtitle: l10n.roleDeveloperSubtitle,
                               icon: Icons.code_rounded,
-                              onTap: () => setState(() => _asDeveloper = !_asDeveloper),
+                              onTap: () =>
+                                  setState(() => _asDeveloper = !_asDeveloper),
                             ),
                             const SizedBox(height: AppSpacing.xs),
                             _RoleTile(
                               selected: _asTester,
-                              title: 'Quiero ser tester',
-                              subtitle: 'Me uno a campañas y gano TestCredits',
+                              title: l10n.roleTesterTitle,
+                              subtitle: l10n.roleTesterSubtitle,
                               icon: Icons.phone_android_rounded,
-                              onTap: () => setState(() => _asTester = !_asTester),
+                              onTap: () =>
+                                  setState(() => _asTester = !_asTester),
                             ),
                             if (auth.error != null) ...[
                               const SizedBox(height: AppSpacing.sm),
                               Text(
-                                auth.error!,
+                                localizeAuthError(l10n, auth.error),
                                 style: const TextStyle(
                                   color: AppColors.error,
                                   fontWeight: FontWeight.w600,
@@ -137,7 +157,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             ],
                             const SizedBox(height: AppSpacing.md),
                             PrimaryButton(
-                              label: 'Registrarme',
+                              label: l10n.signUp,
                               loading: auth.loading,
                               onPressed: _submit,
                             ),
@@ -146,7 +166,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       ),
                       TextButton(
                         onPressed: () => context.go('/login'),
-                        child: const Text('Ya tengo cuenta'),
+                        child: Text(l10n.alreadyHaveAccount),
                       ),
                     ],
                   ),

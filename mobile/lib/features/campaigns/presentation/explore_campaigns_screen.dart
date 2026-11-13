@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/l10n/l10n_ext.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/widgets/app_widgets.dart';
 import '../../tester_groups/data/groups_repository.dart';
@@ -26,6 +27,7 @@ class _ExploreCampaignsScreenState extends ConsumerState<ExploreCampaignsScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final asyncCampaigns = ref.watch(exploreCampaignsProvider);
     return Scaffold(
       body: AppScaffoldBackground(
@@ -33,7 +35,7 @@ class _ExploreCampaignsScreenState extends ConsumerState<ExploreCampaignsScreen>
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(
+                padding: const EdgeInsetsDirectional.fromSTEB(
                   AppSpacing.lg,
                   AppSpacing.md,
                   AppSpacing.lg,
@@ -42,17 +44,17 @@ class _ExploreCampaignsScreenState extends ConsumerState<ExploreCampaignsScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Explorar', style: Theme.of(context).textTheme.headlineSmall),
+                    Text(l10n.exploreTitle, style: Theme.of(context).textTheme.headlineSmall),
                     const SizedBox(height: 4),
                     Text(
-                      'Campañas abiertas listas para unirte',
+                      l10n.exploreSubtitle,
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     const SizedBox(height: AppSpacing.md),
                     TextField(
-                      decoration: const InputDecoration(
-                        hintText: 'Buscar por nombre o app',
-                        prefixIcon: Icon(Icons.search_rounded),
+                      decoration: InputDecoration(
+                        hintText: l10n.searchCampaignsHint,
+                        prefixIcon: const Icon(Icons.search_rounded),
                       ),
                       onChanged: (v) => setState(() => _query = v.trim().toLowerCase()),
                     ),
@@ -70,16 +72,16 @@ class _ExploreCampaignsScreenState extends ConsumerState<ExploreCampaignsScreen>
                     if (filtered.isEmpty) {
                       return EmptyState(
                         icon: Icons.explore_off_outlined,
-                        title: 'Sin resultados',
-                        message: 'No hay campañas en reclutamiento con ese criterio.',
-                        actionLabel: 'Actualizar',
+                        title: l10n.noResults,
+                        message: l10n.noResultsMessage,
+                        actionLabel: l10n.refresh,
                         onAction: () => ref.invalidate(exploreCampaignsProvider),
                       );
                     }
                     return RefreshIndicator(
                       onRefresh: () async => ref.invalidate(exploreCampaignsProvider),
                       child: ListView.separated(
-                        padding: const EdgeInsets.fromLTRB(
+                        padding: const EdgeInsetsDirectional.fromSTEB(
                           AppSpacing.lg,
                           AppSpacing.xs,
                           AppSpacing.lg,
@@ -91,15 +93,15 @@ class _ExploreCampaignsScreenState extends ConsumerState<ExploreCampaignsScreen>
                           final c = filtered[index];
                           return CampaignCard(
                             title: c.name,
-                            subtitle: c.applicationName ?? 'Aplicación',
+                            subtitle: c.applicationName ?? l10n.application,
                             status: c.status,
                             meta: [
-                              '${c.durationDays} días',
-                              '${c.targetTesters} plazas',
-                              '${c.costPerTesterTc} TC',
+                              l10n.daysCount(c.durationDays),
+                              l10n.seatsCount(c.targetTesters),
+                              l10n.tcAmount(c.costPerTesterTc),
                             ],
                             trailing: PrimaryButton(
-                              label: 'Unirme',
+                              label: l10n.join,
                               icon: Icons.group_add_outlined,
                               onPressed: () async {
                                 try {
@@ -111,7 +113,11 @@ class _ExploreCampaignsScreenState extends ConsumerState<ExploreCampaignsScreen>
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text(
-                                          'Unido a ${group.name} (${group.occupiedSeats}/${group.targetSize})',
+                                          l10n.joinedGroup(
+                                            group.name,
+                                            group.occupiedSeats,
+                                            group.targetSize,
+                                          ),
                                         ),
                                       ),
                                     );
@@ -119,7 +125,9 @@ class _ExploreCampaignsScreenState extends ConsumerState<ExploreCampaignsScreen>
                                 } catch (e) {
                                   if (context.mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text('No se pudo unir: $e')),
+                                      SnackBar(
+                                        content: Text(l10n.couldNotJoin('$e')),
+                                      ),
                                     );
                                   }
                                 }

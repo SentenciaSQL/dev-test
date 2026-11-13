@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/l10n/l10n_ext.dart';
 import '../data/groups_repository.dart';
 import '../domain/group_models.dart';
 
@@ -17,13 +18,14 @@ class CampaignGroupsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final asyncGroups = ref.watch(campaignGroupsProvider(campaignId));
     return Scaffold(
-      appBar: AppBar(title: Text(campaignName ?? 'Grupos')),
+      appBar: AppBar(title: Text(campaignName ?? l10n.groups)),
       body: asyncGroups.when(
         data: (groups) {
           if (groups.isEmpty) {
-            return const Center(child: Text('Esta campaña aún no tiene grupos.'));
+            return Center(child: Text(l10n.noGroupsForCampaign));
           }
           return ListView.separated(
             itemCount: groups.length,
@@ -34,11 +36,11 @@ class CampaignGroupsScreen extends ConsumerWidget {
                 title: Text(g.name),
                 subtitle: Text(
                   '${g.status} · ${g.occupiedSeats}/${g.targetSize} · '
-                  '${g.openSeats} libres',
+                  '${g.openSeats} ${l10n.seats}',
                 ),
                 children: [
                   if (g.members.isEmpty)
-                    const ListTile(title: Text('Sin miembros visibles'))
+                    ListTile(title: Text(l10n.noVisibleMembers))
                   else
                     ...g.members.map(
                       (m) => ListTile(
@@ -53,7 +55,7 @@ class CampaignGroupsScreen extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error: $e')),
+        error: (e, _) => Center(child: Text(l10n.errorWithDetails('$e'))),
       ),
     );
   }

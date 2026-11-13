@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 
+import '../l10n/l10n_ext.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 
@@ -285,9 +286,9 @@ class EmptyState extends StatelessWidget {
 }
 
 class LoadingState extends StatelessWidget {
-  const LoadingState({super.key, this.label = 'Cargando…'});
+  const LoadingState({super.key, this.label});
 
-  final String label;
+  final String? label;
 
   @override
   Widget build(BuildContext context) {
@@ -301,7 +302,10 @@ class LoadingState extends StatelessWidget {
             child: CircularProgressIndicator(strokeWidth: 2.5),
           ),
           const SizedBox(height: AppSpacing.md),
-          Text(label, style: Theme.of(context).textTheme.bodyMedium),
+          Text(
+            label ?? context.l10n.loading,
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
         ],
       ),
     );
@@ -320,11 +324,12 @@ class ErrorState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return EmptyState(
       icon: Icons.error_outline_rounded,
-      title: 'Algo salió mal',
+      title: l10n.errorSomethingWentWrong,
       message: message,
-      actionLabel: onRetry != null ? 'Reintentar' : null,
+      actionLabel: onRetry != null ? l10n.retry : null,
       onAction: onRetry,
     );
   }
@@ -389,6 +394,7 @@ class CreditBalanceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AppSpacing.lg),
@@ -411,14 +417,14 @@ class CreditBalanceCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'TestCredits',
+            l10n.testCredits,
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
                   color: Colors.white.withValues(alpha: 0.85),
                 ),
           ),
           const SizedBox(height: 6),
           Text(
-            '$available TC',
+            l10n.tcAmount(available),
             style: Theme.of(context).textTheme.displaySmall?.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.w800,
@@ -426,7 +432,7 @@ class CreditBalanceCard extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            'Reservados: $reserved TC',
+            l10n.reservedCredits(reserved),
             style: TextStyle(color: Colors.white.withValues(alpha: 0.8)),
           ),
           if (onBuy != null) ...[
@@ -438,7 +444,7 @@ class CreditBalanceCard extends StatelessWidget {
                 foregroundColor: AppColors.primaryDark,
                 minimumSize: const Size(140, 40),
               ),
-              child: const Text('Comprar créditos'),
+              child: Text(l10n.buyCredits),
             ),
           ],
         ],

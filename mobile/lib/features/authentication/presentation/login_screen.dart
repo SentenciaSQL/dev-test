@@ -3,9 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/config/app_config.dart';
+import '../../../core/l10n/auth_error_l10n.dart';
+import '../../../core/l10n/l10n_ext.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/widgets/app_widgets.dart';
+import '../../../core/widgets/language_selector.dart';
 import 'auth_controller.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -41,6 +44,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final auth = ref.watch(authControllerProvider);
+    final l10n = context.l10n;
     return Scaffold(
       body: AppScaffoldBackground(
         child: SafeArea(
@@ -54,7 +58,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const SizedBox(height: AppSpacing.xl),
+                      const Align(
+                        alignment: AlignmentDirectional.centerEnd,
+                        child: LanguageSelector(compact: true),
+                      ),
+                      const SizedBox(height: AppSpacing.md),
                       Container(
                         width: 64,
                         height: 64,
@@ -64,7 +72,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           ),
                           borderRadius: BorderRadius.circular(20),
                         ),
-                        child: const Icon(Icons.science_rounded, color: Colors.white, size: 32),
+                        child: const Icon(
+                          Icons.science_rounded,
+                          color: Colors.white,
+                          size: 32,
+                        ),
                       ),
                       const SizedBox(height: AppSpacing.md),
                       Text(
@@ -73,7 +85,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        'Conecta desarrolladores Android con testers de confianza.',
+                        l10n.appTagline,
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                       const SizedBox(height: AppSpacing.xl),
@@ -82,20 +94,24 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           children: [
                             CustomTextField(
                               controller: _email,
-                              label: 'Email',
+                              label: l10n.email,
                               keyboardType: TextInputType.emailAddress,
                               prefixIcon: Icons.mail_outline_rounded,
                               validator: (v) =>
-                                  v == null || !v.contains('@') ? 'Email inválido' : null,
+                                  v == null || !v.contains('@')
+                                      ? l10n.invalidEmail
+                                      : null,
                             ),
                             const SizedBox(height: AppSpacing.sm),
                             CustomTextField(
                               controller: _password,
-                              label: 'Contraseña',
+                              label: l10n.password,
                               obscureText: true,
                               prefixIcon: Icons.lock_outline_rounded,
                               validator: (v) =>
-                                  v == null || v.length < 8 ? 'Mínimo 8 caracteres' : null,
+                                  v == null || v.length < 8
+                                      ? l10n.passwordMinLength
+                                      : null,
                             ),
                             if (auth.error != null) ...[
                               const SizedBox(height: AppSpacing.sm),
@@ -104,10 +120,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 padding: const EdgeInsets.all(AppSpacing.sm),
                                 decoration: BoxDecoration(
                                   color: AppColors.errorSoft,
-                                  borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                                  borderRadius: BorderRadius.circular(
+                                    AppSpacing.radiusSm,
+                                  ),
                                 ),
                                 child: Text(
-                                  auth.error!,
+                                  localizeAuthError(l10n, auth.error),
                                   style: const TextStyle(
                                     color: AppColors.error,
                                     fontWeight: FontWeight.w600,
@@ -117,7 +135,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             ],
                             const SizedBox(height: AppSpacing.md),
                             PrimaryButton(
-                              label: 'Iniciar sesión',
+                              label: l10n.signIn,
                               loading: auth.loading,
                               onPressed: _submit,
                             ),
@@ -126,7 +144,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
                       const SizedBox(height: AppSpacing.md),
                       SecondaryButton(
-                        label: 'Crear cuenta',
+                        label: l10n.createAccount,
                         onPressed: () => context.go('/register'),
                       ),
                     ],
