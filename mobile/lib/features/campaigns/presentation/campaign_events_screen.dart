@@ -6,6 +6,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/config/app_config.dart';
+import '../../../core/l10n/l10n_ext.dart';
 import '../../../core/storage/token_storage.dart';
 
 /// Live campaign progress via SSE (`GET /campaigns/{id}/events`).
@@ -106,12 +107,13 @@ class _CampaignEventsScreenState extends ConsumerState<CampaignEventsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(
-        title: Text('SSE · ${widget.campaignName}'),
+        title: Text('${l10n.campaignEvents} · ${widget.campaignName}'),
         actions: [
           IconButton(
-            tooltip: 'Reconectar',
+            tooltip: l10n.reconnect,
             onPressed: () async {
               await _sub?.cancel();
               _client?.close(force: true);
@@ -129,15 +131,15 @@ class _CampaignEventsScreenState extends ConsumerState<CampaignEventsScreen> {
             padding: const EdgeInsets.all(16),
             child: Text(
               _error != null
-                  ? 'Error: $_error'
+                  ? l10n.errorWithDetails(_error!)
                   : _connected
-                      ? 'Conectado a eventos en vivo'
-                      : 'Conectando…',
+                      ? l10n.connectedLiveEvents
+                      : l10n.connecting,
             ),
           ),
           Expanded(
             child: _events.isEmpty
-                ? const Center(child: Text('Esperando eventos…'))
+                ? Center(child: Text(l10n.waitingForEvents))
                 : ListView.separated(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     itemCount: _events.length,

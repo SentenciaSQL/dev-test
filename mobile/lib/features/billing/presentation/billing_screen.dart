@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/l10n/l10n_ext.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/widgets/app_widgets.dart';
@@ -17,6 +18,7 @@ class BillingScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final asyncProducts = ref.watch(billingProductsProvider);
     return Scaffold(
       body: AppScaffoldBackground(
@@ -35,10 +37,11 @@ class BillingScreen extends ConsumerWidget {
                     IconButton(
                       onPressed: () => Navigator.pop(context),
                       icon: const Icon(Icons.arrow_back_rounded),
+                      tooltip: l10n.back,
                     ),
                     Expanded(
                       child: Text(
-                        'Comprar créditos',
+                        l10n.buyCreditsTitle,
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                     ),
@@ -60,15 +63,14 @@ class BillingScreen extends ConsumerWidget {
                         AppCard(
                           accent: true,
                           child: Text(
-                            'Pagos digitales solo con Google Play Billing. '
-                            'El backend verifica el token antes de acreditar TC.',
+                            l10n.billingDisclaimer,
                             style: Theme.of(context).textTheme.bodyMedium,
                           ),
                         ),
                         const SizedBox(height: AppSpacing.lg),
-                        const SectionHeader(
-                          title: 'Paquetes',
-                          subtitle: 'Ideal para campañas puntuales',
+                        SectionHeader(
+                          title: l10n.packages,
+                          subtitle: l10n.packagesSubtitle,
                         ),
                         const SizedBox(height: AppSpacing.sm),
                         ...credits.asMap().entries.map((entry) {
@@ -82,9 +84,9 @@ class BillingScreen extends ConsumerWidget {
                           );
                         }),
                         const SizedBox(height: AppSpacing.md),
-                        const SectionHeader(
-                          title: 'Suscripciones',
-                          subtitle: 'Planes Free → Studio vía Play',
+                        SectionHeader(
+                          title: l10n.subscriptions,
+                          subtitle: l10n.subscriptionsSubtitle,
                         ),
                         const SizedBox(height: AppSpacing.sm),
                         ...subs.map(
@@ -119,6 +121,7 @@ class _ProductCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final price = product.priceUsdCents == null
         ? '—'
         : '\$${(product.priceUsdCents! / 100).toStringAsFixed(2)}';
@@ -133,7 +136,7 @@ class _ProductCard extends ConsumerWidget {
                 child: Text(product.title, style: Theme.of(context).textTheme.titleMedium),
               ),
               if (recommended)
-                const StatusBadge(label: 'Recomendado', tone: BadgeTone.info),
+                StatusBadge(label: l10n.recommended, tone: BadgeTone.info),
             ],
           ),
           const SizedBox(height: 4),
@@ -146,7 +149,7 @@ class _ProductCard extends ConsumerWidget {
           Text(price, style: Theme.of(context).textTheme.bodyMedium),
           const SizedBox(height: AppSpacing.sm),
           PrimaryButton(
-            label: 'Simular compra Play',
+            label: l10n.simulatePlayPurchase,
             onPressed: () async {
               try {
                 final result = await ref
@@ -157,8 +160,10 @@ class _ProductCard extends ConsumerWidget {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(
-                        'Verificado (${result['status']}): '
-                        '+${result['creditedTc'] ?? 0} TC',
+                        context.l10n.purchaseVerified(
+                          '${result['status']}',
+                          result['creditedTc'] ?? 0,
+                        ),
                       ),
                     ),
                   );
@@ -166,7 +171,7 @@ class _ProductCard extends ConsumerWidget {
               } catch (e) {
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Compra falló: $e')),
+                    SnackBar(content: Text(context.l10n.purchaseFailed('$e'))),
                   );
                 }
               }

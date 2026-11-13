@@ -2,6 +2,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/l10n/l10n_ext.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/widgets/app_widgets.dart';
@@ -33,6 +34,7 @@ class _HomeShellState extends ConsumerState<HomeShell> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final user = ref.watch(authControllerProvider).user;
     final isDeveloper = user?.isDeveloper ?? false;
     final isTester = user?.isTester ?? false;
@@ -50,30 +52,30 @@ class _HomeShellState extends ConsumerState<HomeShell> {
     ];
 
     final destinations = <NavigationDestination>[
-      const NavigationDestination(
-        icon: Icon(Icons.home_outlined),
-        selectedIcon: Icon(Icons.home_rounded),
-        label: 'Inicio',
+      NavigationDestination(
+        icon: const Icon(Icons.home_outlined),
+        selectedIcon: const Icon(Icons.home_rounded),
+        label: l10n.navHome,
       ),
       NavigationDestination(
         icon: Icon(isTester ? Icons.explore_outlined : Icons.campaign_outlined),
         selectedIcon: Icon(isTester ? Icons.explore_rounded : Icons.campaign_rounded),
-        label: isTester ? 'Explorar' : 'Campañas',
+        label: isTester ? l10n.navExplore : l10n.navCampaigns,
       ),
-      const NavigationDestination(
-        icon: Icon(Icons.flag_outlined),
-        selectedIcon: Icon(Icons.flag_rounded),
-        label: 'Misiones',
+      NavigationDestination(
+        icon: const Icon(Icons.flag_outlined),
+        selectedIcon: const Icon(Icons.flag_rounded),
+        label: l10n.navMissions,
       ),
-      const NavigationDestination(
-        icon: Icon(Icons.account_balance_wallet_outlined),
-        selectedIcon: Icon(Icons.account_balance_wallet_rounded),
-        label: 'Wallet',
+      NavigationDestination(
+        icon: const Icon(Icons.account_balance_wallet_outlined),
+        selectedIcon: const Icon(Icons.account_balance_wallet_rounded),
+        label: l10n.navWallet,
       ),
-      const NavigationDestination(
-        icon: Icon(Icons.person_outline_rounded),
-        selectedIcon: Icon(Icons.person_rounded),
-        label: 'Perfil',
+      NavigationDestination(
+        icon: const Icon(Icons.person_outline_rounded),
+        selectedIcon: const Icon(Icons.person_rounded),
+        label: l10n.navProfile,
       ),
     ];
 
@@ -109,6 +111,7 @@ class _HomeDashboard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final user = ref.watch(authControllerProvider).user;
     final isAdmin = user?.isAdmin ?? false;
     final walletAsync = ref.watch(walletProvider);
@@ -126,7 +129,7 @@ class _HomeDashboard extends ConsumerWidget {
               ref.invalidate(exploreCampaignsHomeProvider);
             },
             child: ListView(
-              padding: const EdgeInsets.fromLTRB(
+              padding: const EdgeInsetsDirectional.fromSTEB(
                 AppSpacing.lg,
                 AppSpacing.md,
                 AppSpacing.lg,
@@ -140,7 +143,7 @@ class _HomeDashboard extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            _greeting(),
+                            _greeting(l10n),
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                           Text(
@@ -178,14 +181,14 @@ class _HomeDashboard extends ConsumerWidget {
                     ),
                   ),
                   loading: () => const AppCard(child: LinearProgressIndicator()),
-                  error: (_, _) => const AppCard(
-                    child: Text('No se pudo cargar el wallet'),
+                  error: (_, _) => AppCard(
+                    child: Text(l10n.walletCouldNotLoad),
                   ),
                 ),
                 const SizedBox(height: AppSpacing.lg),
-                const SectionHeader(
-                  title: 'Accesos rápidos',
-                  subtitle: 'Lo que más usas, a un toque',
+                SectionHeader(
+                  title: l10n.quickActions,
+                  subtitle: l10n.quickActionsSubtitle,
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 GridView.count(
@@ -199,7 +202,7 @@ class _HomeDashboard extends ConsumerWidget {
                     if (isDeveloper)
                       QuickActionTile(
                         icon: Icons.apps_rounded,
-                        label: 'Apps',
+                        label: l10n.apps,
                         color: AppColors.primary,
                         onTap: () => Navigator.of(context).push(
                           MaterialPageRoute<void>(
@@ -210,7 +213,7 @@ class _HomeDashboard extends ConsumerWidget {
                     if (isTester)
                       QuickActionTile(
                         icon: Icons.groups_rounded,
-                        label: 'Grupos',
+                        label: l10n.groups,
                         color: AppColors.accent,
                         onTap: () => Navigator.of(context).push(
                           MaterialPageRoute<void>(
@@ -220,7 +223,7 @@ class _HomeDashboard extends ConsumerWidget {
                       ),
                     QuickActionTile(
                       icon: Icons.analytics_outlined,
-                      label: 'Analíticas',
+                      label: l10n.analytics,
                       color: AppColors.highlight,
                       onTap: () => Navigator.of(context).push(
                         MaterialPageRoute<void>(
@@ -230,7 +233,7 @@ class _HomeDashboard extends ConsumerWidget {
                     ),
                     QuickActionTile(
                       icon: Icons.feedback_outlined,
-                      label: 'Feedback',
+                      label: l10n.feedback,
                       color: AppColors.warning,
                       onTap: () => Navigator.of(context).push(
                         MaterialPageRoute<void>(
@@ -240,7 +243,7 @@ class _HomeDashboard extends ConsumerWidget {
                     ),
                     QuickActionTile(
                       icon: Icons.tune_rounded,
-                      label: 'Avisos',
+                      label: l10n.alerts,
                       color: AppColors.inkMuted,
                       onTap: () => Navigator.of(context).push(
                         MaterialPageRoute<void>(
@@ -251,7 +254,7 @@ class _HomeDashboard extends ConsumerWidget {
                     if (isAdmin)
                       QuickActionTile(
                         icon: Icons.admin_panel_settings_outlined,
-                        label: 'Admin',
+                        label: l10n.admin,
                         color: AppColors.error,
                         onTap: () => Navigator.of(context).push(
                           MaterialPageRoute<void>(
@@ -263,10 +266,10 @@ class _HomeDashboard extends ConsumerWidget {
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 SectionHeader(
-                  title: isTester ? 'Campañas abiertas' : 'Tus campañas',
+                  title: isTester ? l10n.openCampaigns : l10n.yourCampaigns,
                   subtitle: isTester
-                      ? 'Únete y empieza a probar'
-                      : 'Estado de reclutamiento y progreso',
+                      ? l10n.openCampaignsSubtitle
+                      : l10n.yourCampaignsSubtitle,
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 campaignsAsync.when(
@@ -274,24 +277,26 @@ class _HomeDashboard extends ConsumerWidget {
                     if (campaigns.isEmpty) {
                       return EmptyState(
                         icon: Icons.campaign_outlined,
-                        title: isTester ? 'Nada por explorar' : 'Sin campañas aún',
+                        title: isTester ? l10n.nothingToExplore : l10n.noCampaignsYet,
                         message: isTester
-                            ? 'Cuando haya campañas en reclutamiento aparecerán aquí.'
-                            : 'Crea tu primera campaña desde la pestaña Campañas.',
+                            ? l10n.nothingToExploreMessage
+                            : l10n.noCampaignsYetMessage,
                       );
                     }
                     return Column(
                       children: campaigns.take(4).map((c) {
                         return Padding(
-                          padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                          padding: const EdgeInsetsDirectional.only(
+                            bottom: AppSpacing.sm,
+                          ),
                           child: CampaignCard(
                             title: c.name,
                             subtitle: c.applicationName ?? c.applicationId,
                             status: c.status,
                             meta: [
-                              '${c.durationDays} días',
-                              '${c.targetTesters} testers',
-                              '${c.costPerTesterTc} TC/plaza',
+                              l10n.daysCount(c.durationDays),
+                              l10n.testersCount(c.targetTesters),
+                              l10n.tcPerSeat(c.costPerTesterTc),
                             ],
                           ),
                         );
@@ -309,11 +314,11 @@ class _HomeDashboard extends ConsumerWidget {
     );
   }
 
-  String _greeting() {
+  String _greeting(AppLocalizations l10n) {
     final hour = DateTime.now().hour;
-    if (hour < 12) return 'Buenos días';
-    if (hour < 19) return 'Buenas tardes';
-    return 'Buenas noches';
+    if (hour < 12) return l10n.greetingMorning;
+    if (hour < 19) return l10n.greetingAfternoon;
+    return l10n.greetingEvening;
   }
 }
 

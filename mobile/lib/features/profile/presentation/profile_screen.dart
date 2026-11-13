@@ -2,6 +2,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/l10n/l10n_ext.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/widgets/app_widgets.dart';
 import '../../authentication/presentation/auth_controller.dart';
@@ -13,6 +14,7 @@ class ProfileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final user = ref.watch(authControllerProvider).user;
     if (user == null) {
       return const Scaffold(body: LoadingState());
@@ -21,9 +23,9 @@ class ProfileScreen extends ConsumerWidget {
       body: AppScaffoldBackground(
         child: SafeArea(
           child: ListView(
-            padding: const EdgeInsets.all(AppSpacing.lg),
+            padding: const EdgeInsetsDirectional.all(AppSpacing.lg),
             children: [
-              Text('Perfil', style: Theme.of(context).textTheme.headlineSmall),
+              Text(l10n.profile, style: Theme.of(context).textTheme.headlineSmall),
               const SizedBox(height: AppSpacing.lg),
               AppCard(
                 child: Row(
@@ -56,26 +58,29 @@ class ProfileScreen extends ConsumerWidget {
               AppCard(
                 child: Column(
                   children: [
-                    _InfoRow(label: 'Email verificado', value: user.emailVerified ? 'Sí' : 'Pendiente'),
+                    _InfoRow(
+                      label: l10n.emailVerified,
+                      value: user.emailVerified ? l10n.yes : l10n.pending,
+                    ),
                     const Divider(height: 24),
-                    _InfoRow(label: 'País', value: user.countryCode ?? '—'),
+                    _InfoRow(label: l10n.country, value: user.countryCode ?? '—'),
                     const Divider(height: 24),
-                    _InfoRow(label: 'Idioma', value: user.locale),
+                    _InfoRow(label: l10n.localeLabel, value: user.locale),
                   ],
                 ),
               ),
               const SizedBox(height: AppSpacing.md),
-              const SectionHeader(title: 'Configuración'),
+              SectionHeader(title: l10n.settings),
               const SizedBox(height: AppSpacing.sm),
               AppCard(
                 onTap: () => Navigator.of(context).push(
                   MaterialPageRoute<void>(builder: (_) => const DevicesScreen()),
                 ),
-                child: const ListTile(
+                child: ListTile(
                   contentPadding: EdgeInsets.zero,
-                  leading: Icon(Icons.phone_android_rounded),
-                  title: Text('Dispositivos'),
-                  trailing: Icon(Icons.chevron_right_rounded),
+                  leading: const Icon(Icons.phone_android_rounded),
+                  title: Text(l10n.devices),
+                  trailing: const Icon(Icons.chevron_right_rounded),
                 ),
               ),
               const SizedBox(height: AppSpacing.sm),
@@ -85,16 +90,16 @@ class ProfileScreen extends ConsumerWidget {
                     builder: (_) => const NotificationPrefsScreen(),
                   ),
                 ),
-                child: const ListTile(
+                child: ListTile(
                   contentPadding: EdgeInsets.zero,
-                  leading: Icon(Icons.notifications_active_outlined),
-                  title: Text('Preferencias de notificación'),
-                  trailing: Icon(Icons.chevron_right_rounded),
+                  leading: const Icon(Icons.notifications_active_outlined),
+                  title: Text(l10n.notificationPreferences),
+                  trailing: const Icon(Icons.chevron_right_rounded),
                 ),
               ),
               const SizedBox(height: AppSpacing.lg),
               SecondaryButton(
-                label: 'Cerrar sesión',
+                label: l10n.signOut,
                 icon: Icons.logout_rounded,
                 onPressed: () async {
                   await ref.read(authControllerProvider.notifier).logout();

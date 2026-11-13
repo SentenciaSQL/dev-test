@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/l10n/l10n_ext.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/widgets/app_widgets.dart';
@@ -21,6 +22,7 @@ class WalletScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final asyncWallet = ref.watch(walletProvider);
     final asyncTx = ref.watch(walletTxProvider);
     return Scaffold(
@@ -34,10 +36,10 @@ class WalletScreen extends ConsumerWidget {
             child: ListView(
               padding: const EdgeInsets.all(AppSpacing.lg),
               children: [
-                Text('Wallet', style: Theme.of(context).textTheme.headlineSmall),
+                Text(l10n.walletTitle, style: Theme.of(context).textTheme.headlineSmall),
                 const SizedBox(height: 4),
                 Text(
-                  'Tu saldo de TestCredits y movimientos',
+                  l10n.walletSubtitle,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 const SizedBox(height: AppSpacing.lg),
@@ -53,18 +55,18 @@ class WalletScreen extends ConsumerWidget {
                   error: (e, _) => ErrorState(message: '$e'),
                 ),
                 const SizedBox(height: AppSpacing.lg),
-                const SectionHeader(
-                  title: 'Historial',
-                  subtitle: 'Cada movimiento queda en el ledger',
+                SectionHeader(
+                  title: l10n.history,
+                  subtitle: l10n.historySubtitle,
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 asyncTx.when(
                   data: (txs) {
                     if (txs.isEmpty) {
-                      return const EmptyState(
+                      return EmptyState(
                         icon: Icons.receipt_long_outlined,
-                        title: 'Sin movimientos',
-                        message: 'Cuando reserves, gastes o compres créditos aparecerán aquí.',
+                        title: l10n.noMovements,
+                        message: l10n.noMovementsMessage,
                       );
                     }
                     return Column(
@@ -130,8 +132,7 @@ class WalletScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: AppSpacing.md),
                 Text(
-                  'Los créditos no son retirables ni convertibles a dinero real. '
-                  'Compras solo vía Google Play Billing.',
+                  l10n.creditsDisclaimer,
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ],

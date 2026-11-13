@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/l10n/l10n_ext.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/widgets/app_widgets.dart';
@@ -20,6 +21,7 @@ class NotificationsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final asyncList = ref.watch(notificationsProvider);
     return Scaffold(
       body: AppScaffoldBackground(
@@ -27,7 +29,7 @@ class NotificationsScreen extends ConsumerWidget {
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(
+                padding: const EdgeInsetsDirectional.fromSTEB(
                   AppSpacing.md,
                   AppSpacing.sm,
                   AppSpacing.md,
@@ -41,7 +43,7 @@ class NotificationsScreen extends ConsumerWidget {
                     ),
                     Expanded(
                       child: Text(
-                        'Notificaciones',
+                        l10n.notifications,
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                     ),
@@ -51,7 +53,7 @@ class NotificationsScreen extends ConsumerWidget {
                         ref.invalidate(notificationsProvider);
                         ref.invalidate(unreadCountProvider);
                       },
-                      child: const Text('Marcar todas'),
+                      child: Text(l10n.markAll),
                     ),
                   ],
                 ),
@@ -60,16 +62,17 @@ class NotificationsScreen extends ConsumerWidget {
                 child: asyncList.when(
                   data: (items) {
                     if (items.isEmpty) {
-                      return const EmptyState(
+                      return EmptyState(
                         icon: Icons.notifications_none_rounded,
-                        title: 'Bandeja vacía',
-                        message: 'Cuando haya novedades de campañas o créditos, las verás aquí.',
+                        title: l10n.inboxEmpty,
+                        message: l10n.inboxEmptyMessage,
                       );
                     }
                     return ListView.separated(
                       padding: const EdgeInsets.all(AppSpacing.lg),
                       itemCount: items.length,
-                      separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.sm),
+                      separatorBuilder: (_, _) =>
+                          const SizedBox(height: AppSpacing.sm),
                       itemBuilder: (context, index) {
                         final n = items[index];
                         return AppCard(
@@ -109,13 +112,22 @@ class NotificationsScreen extends ConsumerWidget {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(n.title, style: Theme.of(context).textTheme.titleSmall),
+                                    Text(
+                                      n.title,
+                                      style:
+                                          Theme.of(context).textTheme.titleSmall,
+                                    ),
                                     const SizedBox(height: 2),
-                                    Text(n.body, style: Theme.of(context).textTheme.bodyMedium),
+                                    Text(
+                                      n.body,
+                                      style:
+                                          Theme.of(context).textTheme.bodyMedium,
+                                    ),
                                     const SizedBox(height: 6),
                                     Text(
                                       '${n.eventType} · ${n.createdAt}',
-                                      style: Theme.of(context).textTheme.bodySmall,
+                                      style:
+                                          Theme.of(context).textTheme.bodySmall,
                                     ),
                                   ],
                                 ),
@@ -127,7 +139,8 @@ class NotificationsScreen extends ConsumerWidget {
                     );
                   },
                   loading: () => const LoadingState(),
-                  error: (e, _) => ErrorState(message: '$e'),
+                  error: (e, _) =>
+                      ErrorState(message: l10n.errorWithDetails('$e')),
                 ),
               ),
             ],

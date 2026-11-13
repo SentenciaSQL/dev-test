@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/l10n/l10n_ext.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/widgets/app_widgets.dart';
@@ -17,6 +18,7 @@ class MyGroupsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final asyncGroups = ref.watch(myGroupsProvider);
     return Scaffold(
       body: AppScaffoldBackground(
@@ -24,7 +26,7 @@ class MyGroupsScreen extends ConsumerWidget {
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(
+                padding: const EdgeInsetsDirectional.fromSTEB(
                   AppSpacing.md,
                   AppSpacing.sm,
                   AppSpacing.lg,
@@ -37,7 +39,10 @@ class MyGroupsScreen extends ConsumerWidget {
                       icon: const Icon(Icons.arrow_back_rounded),
                     ),
                     Expanded(
-                      child: Text('Mis grupos', style: Theme.of(context).textTheme.titleLarge),
+                      child: Text(
+                        l10n.myGroups,
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
                     ),
                     IconButton(
                       onPressed: () => ref.invalidate(myGroupsProvider),
@@ -50,16 +55,17 @@ class MyGroupsScreen extends ConsumerWidget {
                 child: asyncGroups.when(
                   data: (groups) {
                     if (groups.isEmpty) {
-                      return const EmptyState(
+                      return EmptyState(
                         icon: Icons.groups_outlined,
-                        title: 'Todavía no estás en un grupo',
-                        message: 'Explora campañas abiertas y únete para empezar.',
+                        title: l10n.notInGroupYet,
+                        message: l10n.notInGroupYetMessage,
                       );
                     }
                     return ListView.separated(
                       padding: const EdgeInsets.all(AppSpacing.lg),
                       itemCount: groups.length,
-                      separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.sm),
+                      separatorBuilder: (_, _) =>
+                          const SizedBox(height: AppSpacing.sm),
                       itemBuilder: (context, index) {
                         final g = groups[index];
                         final progress = g.targetSize == 0
@@ -73,11 +79,16 @@ class MyGroupsScreen extends ConsumerWidget {
                                 children: [
                                   Expanded(
                                     child: Text(
-                                      '${g.campaignName ?? 'Campaña'} · ${g.name}',
-                                      style: Theme.of(context).textTheme.titleMedium,
+                                      '${g.campaignName ?? l10n.navCampaigns} · ${g.name}',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium,
                                     ),
                                   ),
-                                  StatusBadge(label: g.status, tone: toneForStatus(g.status)),
+                                  StatusBadge(
+                                    label: g.status,
+                                    tone: toneForStatus(g.status),
+                                  ),
                                 ],
                               ),
                               const SizedBox(height: AppSpacing.sm),
@@ -91,7 +102,11 @@ class MyGroupsScreen extends ConsumerWidget {
                               ),
                               const SizedBox(height: 6),
                               Text(
-                                '${g.occupiedSeats}/${g.targetSize} plazas · Tu estado: ${g.myMembershipStatus ?? '—'}',
+                                l10n.groupProgress(
+                                  g.occupiedSeats,
+                                  g.targetSize,
+                                  g.myMembershipStatus ?? '—',
+                                ),
                                 style: Theme.of(context).textTheme.bodySmall,
                               ),
                               Align(
@@ -105,7 +120,8 @@ class MyGroupsScreen extends ConsumerWidget {
                     );
                   },
                   loading: () => const LoadingState(),
-                  error: (e, _) => ErrorState(message: '$e'),
+                  error: (e, _) =>
+                      ErrorState(message: l10n.errorWithDetails('$e')),
                 ),
               ),
             ],
@@ -123,6 +139,7 @@ class _MemberActions extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final memberId = group.myMembershipId;
     final status = group.myMembershipStatus;
     if (memberId == null || status == null) return const SizedBox.shrink();
@@ -137,7 +154,7 @@ class _MemberActions extends ConsumerWidget {
       } catch (e) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('No se pudo actualizar: $e')),
+            SnackBar(content: Text(context.l10n.couldNotUpdate('$e'))),
           );
         }
       }
@@ -148,13 +165,15 @@ class _MemberActions extends ConsumerWidget {
       itemBuilder: (context) {
         final items = <PopupMenuEntry<String>>[];
         if (status == 'ACCEPTED') {
-          items.add(const PopupMenuItem(value: 'CONFIRMED', child: Text('Confirmar')));
-          items.add(const PopupMenuItem(value: 'DROPPED', child: Text('Abandonar')));
+          items.add(PopupMenuItem(value: 'CONFIRMED', child: Text(l10n.confirm)));
+          items.add(PopupMenuItem(value: 'DROPPED', child: Text(l10n.leave)));
         } else if (status == 'CONFIRMED') {
-          items.add(const PopupMenuItem(value: 'ACTIVE', child: Text('Marcar activo')));
-          items.add(const PopupMenuItem(value: 'DROPPED', child: Text('Abandonar')));
+          items.add(
+            PopupMenuItem(value: 'ACTIVE', child: Text(l10n.markActive)),
+          );
+          items.add(PopupMenuItem(value: 'DROPPED', child: Text(l10n.leave)));
         } else if (status == 'ACTIVE') {
-          items.add(const PopupMenuItem(value: 'DROPPED', child: Text('Abandonar')));
+          items.add(PopupMenuItem(value: 'DROPPED', child: Text(l10n.leave)));
         }
         return items;
       },

@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/l10n/l10n_ext.dart';
 import '../../campaigns/data/campaigns_repository.dart';
 import '../data/feedback_repository.dart';
 
@@ -13,18 +14,19 @@ class FeedbackScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final asyncFeedback = ref.watch(myFeedbackProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Feedback')),
+      appBar: AppBar(title: Text(l10n.feedbackTitle)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _create(context, ref),
         icon: const Icon(Icons.add_comment_outlined),
-        label: const Text('Nuevo'),
+        label: Text(l10n.newFeedback),
       ),
       body: asyncFeedback.when(
         data: (items) {
           if (items.isEmpty) {
-            return const Center(child: Text('Aún no has enviado feedback.'));
+            return Center(child: Text(l10n.noFeedbackYet));
           }
           return ListView.separated(
             itemCount: items.length,
@@ -40,7 +42,7 @@ class FeedbackScreen extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('$e')),
+        error: (e, _) => Center(child: Text(l10n.errorWithDetails('$e'))),
       ),
     );
   }
@@ -52,39 +54,55 @@ class FeedbackScreen extends ConsumerWidget {
     if (!context.mounted) return;
     if (all.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Necesitas una campaña para enviar feedback')),
+        SnackBar(content: Text(context.l10n.noCampaignsAvailable)),
       );
       return;
     }
     var selected = all.first;
-    final title = TextEditingController(text: 'Comentario de prueba');
-    final body = TextEditingController(text: 'Detalle del feedback desde AppTrial');
+    final title = TextEditingController(text: 'Sample feedback');
+    final body = TextEditingController(text: 'Feedback detail from AppTrial');
     final ok = await showDialog<bool>(
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
-          title: const Text('Enviar feedback'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              DropdownButtonFormField(
-                initialValue: selected,
-                items: all
-                    .map((c) => DropdownMenuItem(value: c, child: Text(c.name)))
-                    .toList(),
-                onChanged: (v) => setState(() => selected = v ?? selected),
-                decoration: const InputDecoration(labelText: 'Campaña'),
+      builder: (context) {
+        final l10n = context.l10n;
+        return StatefulBuilder(
+          builder: (context, setState) => AlertDialog(
+            title: Text(l10n.newFeedback),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                DropdownButtonFormField(
+                  initialValue: selected,
+                  items: all
+                      .map((c) => DropdownMenuItem(value: c, child: Text(c.name)))
+                      .toList(),
+                  onChanged: (v) => setState(() => selected = v ?? selected),
+                  decoration: InputDecoration(labelText: l10n.navCampaigns),
+                ),
+                TextField(
+                  controller: title,
+                  decoration: InputDecoration(labelText: l10n.name),
+                ),
+                TextField(
+                  controller: body,
+                  decoration: InputDecoration(labelText: l10n.description),
+                  maxLines: 3,
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: Text(l10n.cancel),
               ),
-              TextField(controller: title, decoration: const InputDecoration(labelText: 'Título')),
-              TextField(controller: body, decoration: const InputDecoration(labelText: 'Detalle'), maxLines: 3),
+              FilledButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: Text(l10n.submit),
+              ),
             ],
           ),
-          actions: [
-            TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancelar')),
-            FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Enviar')),
-          ],
-        ),
-      ),
+        );
+      },
     );
     if (ok == true) {
       await ref.read(feedbackRepositoryProvider).create(

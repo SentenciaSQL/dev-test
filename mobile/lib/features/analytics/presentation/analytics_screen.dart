@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/l10n/l10n_ext.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/widgets/app_widgets.dart';
 import '../../authentication/presentation/auth_controller.dart';
@@ -21,6 +22,7 @@ class AnalyticsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final user = ref.watch(authControllerProvider).user;
     final mine = ref.watch(developerAnalyticsProvider);
     final isAdmin = user?.isAdmin ?? false;
@@ -37,13 +39,16 @@ class AnalyticsScreen extends ConsumerWidget {
                     onPressed: () => Navigator.pop(context),
                     icon: const Icon(Icons.arrow_back_rounded),
                   ),
-                  Text('Analíticas', style: Theme.of(context).textTheme.titleLarge),
+                  Text(
+                    l10n.analyticsTitle,
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
                 ],
               ),
               const SizedBox(height: AppSpacing.md),
-              const SectionHeader(
-                title: 'Mi resumen',
-                subtitle: 'Actividad de tus apps y campañas',
+              SectionHeader(
+                title: l10n.mySummary,
+                subtitle: l10n.mySummarySubtitle,
               ),
               const SizedBox(height: AppSpacing.sm),
               mine.when(
@@ -55,45 +60,50 @@ class AnalyticsScreen extends ConsumerWidget {
                   crossAxisSpacing: AppSpacing.sm,
                   childAspectRatio: 1.35,
                   children: [
-                    StatCard(label: 'Apps', value: '${a.applications}', icon: Icons.apps_rounded),
                     StatCard(
-                      label: 'Campañas activas',
+                      label: l10n.apps,
+                      value: '${a.applications}',
+                      icon: Icons.apps_rounded,
+                    ),
+                    StatCard(
+                      label: l10n.activeCampaigns,
                       value: '${a.activeCampaigns}',
                       icon: Icons.campaign_rounded,
                       tone: BadgeTone.accent,
                     ),
                     StatCard(
-                      label: 'Plazas',
+                      label: l10n.seats,
                       value: '${a.occupiedSeats}/${a.totalTargetTesters}',
                       icon: Icons.groups_rounded,
                     ),
                     StatCard(
-                      label: 'Aprobados',
+                      label: l10n.approved,
                       value: '${a.approvedSubmissions}',
                       icon: Icons.verified_rounded,
                       tone: BadgeTone.success,
                     ),
                     StatCard(
-                      label: 'Feedback',
+                      label: l10n.feedback,
                       value: '${a.feedbackReports}',
                       icon: Icons.feedback_outlined,
                       tone: BadgeTone.warning,
                     ),
                     StatCard(
-                      label: 'Créditos',
+                      label: l10n.credits,
                       value: '${a.availableCredits}',
                       icon: Icons.account_balance_wallet_outlined,
                     ),
                   ],
                 ),
                 loading: () => const LoadingState(),
-                error: (e, _) => ErrorState(message: '$e'),
+                error: (e, _) =>
+                    ErrorState(message: l10n.errorWithDetails('$e')),
               ),
               if (isAdmin) ...[
                 const SizedBox(height: AppSpacing.lg),
-                const SectionHeader(
-                  title: 'Plataforma',
-                  subtitle: 'Vista admin',
+                SectionHeader(
+                  title: l10n.platform,
+                  subtitle: l10n.platformSubtitle,
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 Consumer(
@@ -108,14 +118,24 @@ class AnalyticsScreen extends ConsumerWidget {
                         crossAxisSpacing: AppSpacing.sm,
                         childAspectRatio: 1.35,
                         children: [
-                          StatCard(label: 'Usuarios', value: '${p.users}'),
-                          StatCard(label: 'Developers', value: '${p.developers}'),
-                          StatCard(label: 'Testers', value: '${p.testers}'),
-                          StatCard(label: 'Campañas', value: '${p.campaigns}'),
+                          StatCard(label: l10n.users, value: '${p.users}'),
+                          StatCard(
+                            label: l10n.developers,
+                            value: '${p.developers}',
+                          ),
+                          StatCard(
+                            label: l10n.testers,
+                            value: '${p.testers}',
+                          ),
+                          StatCard(
+                            label: l10n.navCampaigns,
+                            value: '${p.campaigns}',
+                          ),
                         ],
                       ),
                       loading: () => const LoadingState(),
-                      error: (e, _) => ErrorState(message: '$e'),
+                      error: (e, _) =>
+                          ErrorState(message: l10n.errorWithDetails('$e')),
                     );
                   },
                 ),

@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/l10n/l10n_ext.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/widgets/app_widgets.dart';
 import '../../campaigns/data/campaigns_repository.dart';
@@ -29,6 +30,7 @@ class MissionsHubScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final campaignsAsync = ref.watch(_campaignsForMissionsProvider);
     final submissionsAsync = ref.watch(mySubmissionsProvider);
 
@@ -38,22 +40,22 @@ class MissionsHubScreen extends ConsumerWidget {
           child: ListView(
         padding: const EdgeInsets.all(AppSpacing.lg),
         children: [
-          Text('Misiones', style: Theme.of(context).textTheme.headlineSmall),
+          Text(l10n.missionsTitle, style: Theme.of(context).textTheme.headlineSmall),
           const SizedBox(height: 4),
           Text(
-            'Actividades por campaña y tus envíos',
+            l10n.missionsSubtitle,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: AppSpacing.lg),
-          const SectionHeader(title: 'Campañas'),
+          SectionHeader(title: l10n.campaignsSection),
           const SizedBox(height: AppSpacing.sm),
           campaignsAsync.when(
             data: (campaigns) {
               if (campaigns.isEmpty) {
-                return const EmptyState(
+                return EmptyState(
                   icon: Icons.flag_outlined,
-                  title: 'Sin campañas',
-                  message: 'Cuando tengas campañas verás sus misiones aquí.',
+                  title: l10n.noCampaignsAvailable,
+                  message: l10n.noCampaignsAvailableMessage,
                 );
               }
               return Column(
@@ -63,7 +65,7 @@ class MissionsHubScreen extends ConsumerWidget {
                         padding: const EdgeInsets.only(bottom: AppSpacing.sm),
                         child: CampaignCard(
                           title: c.name,
-                          subtitle: 'Abrir misiones',
+                          subtitle: l10n.openMissions,
                           status: c.status,
                           onTap: () => Navigator.of(context).push(
                             MaterialPageRoute<void>(
@@ -81,18 +83,18 @@ class MissionsHubScreen extends ConsumerWidget {
               );
             },
             loading: () => const LinearProgressIndicator(),
-            error: (e, _) => Text('Error: $e'),
+            error: (e, _) => Text(l10n.errorWithDetails('$e')),
           ),
           const SizedBox(height: AppSpacing.lg),
-          const SectionHeader(title: 'Mis envíos'),
+          SectionHeader(title: l10n.mySubmissions),
           const SizedBox(height: AppSpacing.sm),
           submissionsAsync.when(
             data: (items) {
               if (items.isEmpty) {
-                return const EmptyState(
+                return EmptyState(
                   icon: Icons.inbox_outlined,
-                  title: 'Sin envíos',
-                  message: 'Completa una misión para ver el estado de revisión aquí.',
+                  title: l10n.noSubmissions,
+                  message: l10n.noSubmissionsMessage,
                 );
               }
               return Column(
@@ -108,11 +110,11 @@ class MissionsHubScreen extends ConsumerWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      s.description ?? 'Envío de misión',
+                                      s.description ?? l10n.missionSubmission,
                                       style: Theme.of(context).textTheme.titleSmall,
                                     ),
                                     Text(
-                                      'Evidencias: ${s.evidenceCount}',
+                                      l10n.evidenceCount(s.evidenceCount),
                                       style: Theme.of(context).textTheme.bodySmall,
                                     ),
                                   ],
@@ -173,12 +175,13 @@ class _CampaignMissionsScreenState extends ConsumerState<CampaignMissionsScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(title: Text(widget.campaignName)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _createMission(context),
         icon: const Icon(Icons.add),
-        label: const Text('Misión'),
+        label: Text(l10n.mission),
       ),
       body: FutureBuilder<List<MissionItem>>(
         future: _future,
@@ -189,7 +192,7 @@ class _CampaignMissionsScreenState extends ConsumerState<CampaignMissionsScreen>
           }
           final missions = snapshot.data!;
           if (missions.isEmpty) {
-            return const Center(child: Text('Sin misiones. Crea la primera.'));
+            return Center(child: Text(l10n.noMissionsCreateFirst));
           }
           return ListView.separated(
             itemCount: missions.length,
@@ -202,13 +205,13 @@ class _CampaignMissionsScreenState extends ConsumerState<CampaignMissionsScreen>
                 trailing: Wrap(
                   children: [
                     IconButton(
-                      tooltip: 'Enviar',
+                      tooltip: l10n.submit,
                       icon: const Icon(Icons.upload_file_outlined),
                       onPressed: () => _submit(m),
                     ),
                     if (widget.isOwner)
                       IconButton(
-                        tooltip: 'Revisar',
+                        tooltip: l10n.review,
                         icon: const Icon(Icons.rate_review_outlined),
                         onPressed: () => _review(m),
                       ),
@@ -223,17 +226,23 @@ class _CampaignMissionsScreenState extends ConsumerState<CampaignMissionsScreen>
   }
 
   Future<void> _createMission(BuildContext context) async {
-    final title = TextEditingController(text: 'Probar flujo principal');
+    final title = TextEditingController(text: 'Test main flow');
     final ok = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Nueva misión'),
-        content: TextField(controller: title, decoration: const InputDecoration(labelText: 'Título')),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancelar')),
-          FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Crear')),
-        ],
-      ),
+      builder: (context) {
+        final l10n = context.l10n;
+        return AlertDialog(
+          title: Text(l10n.newMission),
+          content: TextField(
+            controller: title,
+            decoration: InputDecoration(labelText: l10n.missionTitle),
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l10n.cancel)),
+            FilledButton(onPressed: () => Navigator.pop(context, true), child: Text(l10n.create)),
+          ],
+        );
+      },
     );
     if (ok == true) {
       await ref.read(missionsRepositoryProvider).create(
@@ -251,16 +260,16 @@ class _CampaignMissionsScreenState extends ConsumerState<CampaignMissionsScreen>
     try {
       final submission = await ref.read(missionsRepositoryProvider).submit(
             missionId: mission.id,
-            description: 'Completado desde AppTrial',
+            description: 'Completed from AppTrial',
           );
       await ref.read(missionsRepositoryProvider).attachEvidenceText(
             submissionId: submission.id,
-            text: 'Evidencia de prueba para ${mission.title}',
+            text: 'Test evidence for ${mission.title}',
           );
       ref.invalidate(mySubmissionsProvider);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Misión enviada con evidencia')),
+          SnackBar(content: Text(context.l10n.missionSubmitted)),
         );
       }
     } catch (e) {
@@ -277,7 +286,7 @@ class _CampaignMissionsScreenState extends ConsumerState<CampaignMissionsScreen>
       if (!mounted) return;
       if (submissions.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Sin envíos para revisar')),
+          SnackBar(content: Text(context.l10n.noSubmissionsToReview)),
         );
         return;
       }
@@ -285,12 +294,16 @@ class _CampaignMissionsScreenState extends ConsumerState<CampaignMissionsScreen>
       await ref.read(missionsRepositoryProvider).review(
             submissionId: first.id,
             status: 'APPROVED',
-            notes: 'Aprobado en revisión',
+            notes: 'Approved in review',
           );
       ref.invalidate(mySubmissionsProvider);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Aprobado ${first.id} (+${mission.rewardTc} TC)')),
+          SnackBar(
+            content: Text(
+              context.l10n.approvedWithReward(first.id, mission.rewardTc),
+            ),
+          ),
         );
       }
     } catch (e) {
