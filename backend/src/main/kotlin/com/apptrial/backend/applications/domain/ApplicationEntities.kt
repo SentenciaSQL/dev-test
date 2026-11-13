@@ -14,20 +14,23 @@ class ApplicationEntity(
 	var id: UUID = UUID.randomUUID(),
 	@Column(name = "owner_user_id", nullable = false)
 	var ownerUserId: UUID,
-	@Column(nullable = false)
+	@Column(nullable = false, length = 160)
 	var name: String,
+	@Column(columnDefinition = "text")
 	var description: String? = null,
-	@Column(name = "package_name", nullable = false)
+	@Column(name = "package_name", nullable = false, length = 255)
 	var packageName: String,
-	@Column(name = "icon_url")
+	@Column(name = "icon_url", columnDefinition = "text")
 	var iconUrl: String? = null,
+	@Column(length = 64)
 	var category: String? = null,
-	@Column(name = "current_version")
+	@Column(name = "current_version", length = 64)
 	var currentVersion: String? = null,
-	@Column(name = "play_store_url")
+	@Column(name = "play_store_url", columnDefinition = "text")
 	var playStoreUrl: String? = null,
-	@Column(name = "closed_testing_url")
+	@Column(name = "closed_testing_url", columnDefinition = "text")
 	var closedTestingUrl: String? = null,
+	@Column(columnDefinition = "text")
 	var instructions: String? = null,
 	@Column(nullable = false)
 	var status: String = "ACTIVE",
@@ -44,7 +47,7 @@ class ApplicationScreenshotEntity(
 	var id: UUID = UUID.randomUUID(),
 	@Column(name = "application_id", nullable = false)
 	var applicationId: UUID,
-	@Column(name = "image_url", nullable = false)
+	@Column(name = "image_url", nullable = false, columnDefinition = "text")
 	var imageUrl: String,
 	@Column(name = "sort_order", nullable = false)
 	var sortOrder: Int = 0,

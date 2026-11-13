@@ -16,7 +16,9 @@ class CampaignMissionEntity(
 	var campaignId: UUID,
 	@Column(nullable = false)
 	var title: String,
+	@Column(columnDefinition = "text")
 	var description: String? = null,
+	@Column(columnDefinition = "text")
 	var instructions: String? = null,
 	@Column(name = "mission_type", nullable = false)
 	var missionType: String,
@@ -45,10 +47,11 @@ class MissionSubmissionEntity(
 	var missionId: UUID,
 	@Column(name = "user_id", nullable = false)
 	var userId: UUID,
+	@Column(columnDefinition = "text")
 	var description: String? = null,
 	@Column(nullable = false)
 	var status: String = "PENDING",
-	@Column(name = "reviewer_notes")
+	@Column(name = "reviewer_notes", columnDefinition = "text")
 	var reviewerNotes: String? = null,
 	@Column(name = "reviewed_by")
 	var reviewedBy: UUID? = null,

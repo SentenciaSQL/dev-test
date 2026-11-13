@@ -19,24 +19,24 @@ import java.util.UUID
 class UserEntity(
 	@Id
 	var id: UUID = UUID.randomUUID(),
-	@Column(nullable = false, unique = true)
+	@Column(nullable = false, unique = true, columnDefinition = "citext")
 	var email: String,
-	@Column(name = "password_hash")
+	@Column(name = "password_hash", columnDefinition = "text")
 	var passwordHash: String? = null,
-	@Column(name = "display_name", nullable = false)
+	@Column(name = "display_name", nullable = false, length = 120)
 	var displayName: String,
-	@Column(name = "photo_url")
+	@Column(name = "photo_url", columnDefinition = "text")
 	var photoUrl: String? = null,
 	@JdbcTypeCode(SqlTypes.CHAR)
 	@Column(name = "country_code", length = 2, columnDefinition = "bpchar(2)")
 	var countryCode: String? = null,
-	@Column(nullable = false)
+	@Column(nullable = false, length = 16)
 	var locale: String = "en",
 	@Column(name = "email_verified_at")
 	var emailVerifiedAt: Instant? = null,
-	@Column(nullable = false)
+	@Column(nullable = false, length = 32)
 	var status: String = "ACTIVE",
-	@Column(name = "reputation_score", nullable = false)
+	@Column(name = "reputation_score", nullable = false, precision = 8, scale = 2)
 	var reputationScore: BigDecimal = BigDecimal.ZERO,
 	@JdbcTypeCode(SqlTypes.JSON)
 	@Column(name = "notification_prefs", nullable = false, columnDefinition = "jsonb")
@@ -87,6 +87,7 @@ class TesterProfileEntity(
 	var campaignsCompleted: Int = 0,
 	@Column(name = "campaigns_dropped", nullable = false)
 	var campaignsDropped: Int = 0,
+	@Column(columnDefinition = "text")
 	var bio: String? = null,
 	@Column(name = "created_at", nullable = false)
 	var createdAt: Instant = Instant.now(),

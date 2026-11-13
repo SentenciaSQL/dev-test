@@ -22,7 +22,7 @@ class RefreshTokenEntity(
 	var revokedAt: Instant? = null,
 	@Column(name = "replaced_by_id")
 	var replacedById: UUID? = null,
-	@Column(name = "user_agent")
+	@Column(name = "user_agent", columnDefinition = "text")
 	var userAgent: String? = null,
 	@Column(name = "ip_address")
 	var ipAddress: String? = null,

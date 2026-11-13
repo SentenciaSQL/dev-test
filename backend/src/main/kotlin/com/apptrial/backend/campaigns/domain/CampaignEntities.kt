@@ -20,6 +20,7 @@ class CampaignEntity(
 	var createdByUserId: UUID,
 	@Column(nullable = false)
 	var name: String,
+	@Column(columnDefinition = "text")
 	var description: String? = null,
 	@Column(name = "test_type", nullable = false)
 	var testType: String = "CLOSED",
@@ -32,12 +33,13 @@ class CampaignEntity(
 	@Column(name = "target_testers", nullable = false)
 	var targetTesters: Int = 15,
 	@JdbcTypeCode(SqlTypes.ARRAY)
-	@Column(name = "allowed_countries", nullable = false, columnDefinition = "char(2)[]")
+	@Column(name = "allowed_countries", nullable = false, columnDefinition = "bpchar(2)[]")
 	var allowedCountries: Array<String> = emptyArray(),
 	@Column(name = "min_android_sdk")
 	var minAndroidSdk: Int? = null,
 	@Column(name = "max_android_sdk")
 	var maxAndroidSdk: Int? = null,
+	@Column(columnDefinition = "text")
 	var instructions: String? = null,
 	@Column(nullable = false)
 	var status: String = "DRAFT",
