@@ -10,3 +10,7 @@ interface CreditWalletRepository : JpaRepository<CreditWalletEntity, UUID> {
 interface CreditTransactionRepository : JpaRepository<CreditTransactionEntity, UUID> {
 	fun findByIdempotencyKey(idempotencyKey: String): CreditTransactionEntity?
 }
+
+interface CreditReservationRepository : JpaRepository<CreditReservationEntity, UUID> {
+	fun findByCampaignIdAndStatus(campaignId: UUID, status: String): CreditReservationEntity?
+}

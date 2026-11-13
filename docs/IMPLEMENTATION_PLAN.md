@@ -24,7 +24,7 @@
 
 ## Estado actual del repositorio
 
-**Fase 0 + inicio Fase 1:** diseño, infraestructura local, monolito modular con identity/users/devices operativos, app Flutter feature-first con auth/perfil/dispositivos conectados al API.
+**Fases 0–2:** diseño, infraestructura, auth/perfil/dispositivos/wallet, aplicaciones CRUD y campañas (draft/publish/cancel/explore) con reserva de TestCredits.
 
 ## DoD por fase
 
