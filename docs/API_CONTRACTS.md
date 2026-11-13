@@ -76,9 +76,28 @@ Libera reserva OPEN si existía; status `CANCELLED`.
 
 ## Fase 3 — Groups
 
-### GET /campaigns/{id}/groups
-### POST /campaigns/{id}/groups/{groupId}/join
-### PATCH /group-members/{id}/status (confirm / drop) — con reglas de backend
+Al publicar una campaña se crean grupos automáticamente (troceo por `defaultGroupSize=15`, mínimo 12).
+
+### GET /campaigns/{campaignId}/groups
+Lista grupos. El owner ve miembros; testers ven plazas y su membresía.
+
+### POST /campaigns/{campaignId}/join
+Asignación automática al primer grupo `RECRUITING` con plazas. Membresía inicial `ACCEPTED`.  
+Si el grupo se llena → `READY`. Si se cubre el cupo de campaña → `FULL`.
+
+### POST /campaigns/{campaignId}/groups/{groupId}/join
+Unión manual a un grupo concreto (mismas validaciones).
+
+### GET /me/groups
+Grupos del tester autenticado.
+
+### PATCH /group-members/{memberId}
+Body: `{ status }`  
+Transiciones: `ACCEPTED→CONFIRMED|DROPPED`, `CONFIRMED→ACTIVE|DROPPED`, `ACTIVE→DROPPED|COMPLETED`, `INVITED→ACCEPTED|DROPPED`.  
+Self o owner/admin. Al abandonar se reabre reclutamiento si aplica.
+
+### Cancelación de campaña
+Cancela grupos y marca miembros ocupantes como `DROPPED`.
 
 ## Fase 4 — Missions / Evidence / Feedback
 

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../applications/data/applications_repository.dart';
 import '../../applications/domain/application_models.dart';
+import '../../tester_groups/presentation/campaign_groups_screen.dart';
 import '../data/campaigns_repository.dart';
 import '../domain/campaign_models.dart';
 
@@ -44,6 +45,21 @@ class MyCampaignsScreen extends ConsumerWidget {
                 trailing: Wrap(
                   spacing: 4,
                   children: [
+                    if (c.status != 'DRAFT')
+                      IconButton(
+                        tooltip: 'Ver grupos',
+                        icon: const Icon(Icons.groups_outlined),
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => CampaignGroupsScreen(
+                                campaignId: c.id,
+                                campaignName: c.name,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                     if (c.status == 'DRAFT')
                       IconButton(
                         tooltip: 'Publicar',

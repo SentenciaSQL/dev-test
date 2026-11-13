@@ -1,0 +1,60 @@
+openapi: 3.0.3
+info:
+  title: AppTrial API — Phase 3
+  version: 0.3.0
+  description: Tester groups and membership lifecycle.
+servers:
+  - url: http://localhost:8080/api/v1
+paths:
+  /campaigns/{campaignId}/groups:
+    get:
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: campaignId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200': { description: Group list }
+  /campaigns/{campaignId}/join:
+    post:
+      security: [{ bearerAuth: [] }]
+      summary: Auto-assign tester to an open group
+      parameters:
+        - { name: campaignId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '201': { description: Joined }
+  /campaigns/{campaignId}/groups/{groupId}/join:
+    post:
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: campaignId, in: path, required: true, schema: { type: string, format: uuid } }
+        - { name: groupId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '201': { description: Joined }
+  /me/groups:
+    get:
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: My group memberships }
+  /group-members/{memberId}:
+    patch:
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: memberId, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status:
+                  type: string
+                  enum: [ACCEPTED, CONFIRMED, ACTIVE, DROPPED, COMPLETED]
+      responses:
+        '200': { description: Updated membership }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

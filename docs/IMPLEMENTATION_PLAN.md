@@ -24,7 +24,7 @@
 
 ## Estado actual del repositorio
 
-**Fases 0–2:** diseño, infraestructura, auth/perfil/dispositivos/wallet, aplicaciones CRUD y campañas (draft/publish/cancel/explore) con reserva de TestCredits.
+**Fases 0–3:** auth/perfil/dispositivos/wallet, apps/campañas con reserva TC, grupos de testers (creación al publicar, join automático, transiciones de membresía).
 
 ## DoD por fase
 
