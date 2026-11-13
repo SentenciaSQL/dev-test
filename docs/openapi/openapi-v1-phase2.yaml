@@ -1,0 +1,93 @@
+openapi: 3.0.3
+info:
+  title: AppTrial API — Phase 2
+  version: 0.2.0
+  description: Applications and campaigns contracts.
+servers:
+  - url: http://localhost:8080/api/v1
+paths:
+  /applications:
+    get:
+      security: [{ bearerAuth: [] }]
+      summary: List my applications
+      responses:
+        '200': { description: OK }
+    post:
+      security: [{ bearerAuth: [] }]
+      summary: Register application
+      responses:
+        '201': { description: Created }
+  /applications/{id}:
+    get:
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200': { description: OK }
+    patch:
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200': { description: OK }
+    delete:
+      security: [{ bearerAuth: [] }]
+      summary: Archive application
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '204': { description: Archived }
+  /campaigns:
+    get:
+      security: [{ bearerAuth: [] }]
+      summary: List my campaigns
+      responses:
+        '200': { description: OK }
+    post:
+      security: [{ bearerAuth: [] }]
+      summary: Create draft campaign
+      responses:
+        '201': { description: Created }
+  /campaigns/explore:
+    get:
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: country, in: query, schema: { type: string } }
+        - { name: sdkInt, in: query, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+  /campaigns/{id}:
+    get:
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200': { description: OK }
+    patch:
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200': { description: OK }
+  /campaigns/{id}/publish:
+    post:
+      security: [{ bearerAuth: [] }]
+      summary: Reserve credits and start recruiting
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200': { description: Recruiting }
+  /campaigns/{id}/cancel:
+    post:
+      security: [{ bearerAuth: [] }]
+      summary: Cancel and release open reservation
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200': { description: Cancelled }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

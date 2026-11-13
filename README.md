@@ -35,7 +35,7 @@ infra/       docker-compose (Postgres, Redis, LocalStack S3)
 
 ## Estado actual
 
-**Fase 0 + Fase 1 (inicio):** diseño completo, esquema Flyway del dominio, auth JWT, perfil, dispositivos, wallet con grant inicial de 20 TC, UI Flutter mínima.
+**Fases 0–2:** auth/perfil/dispositivos/wallet, aplicaciones CRUD, campañas (borrador → publicar con reserva TC → cancelar/explorar), UI Flutter adaptada por rol.
 
 No se incluyen tests automatizados (restricción del proyecto).
 

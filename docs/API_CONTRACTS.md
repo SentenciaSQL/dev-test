@@ -40,9 +40,39 @@ Actualiza displayName, countryCode, locale, photoUrl, notificationPreferences.
 
 ## Fase 2 — Applications & Campaigns
 
-### /applications CRUD (owner)
-### POST /campaigns · GET /campaigns/{id} · PATCH · POST /{id}/publish
-### GET /campaigns/explore (tester) con filtros país/android
+### GET /applications
+Lista las aplicaciones del desarrollador autenticado.
+
+### POST /applications
+Body: `{ name, packageName, description?, category?, currentVersion?, playStoreUrl?, closedTestingUrl?, instructions?, screenshotUrls? }`  
+→ 201 Application. Valida package único por propietario. Plan Free: máx. 1 app ACTIVE.
+
+### GET /applications/{id}
+### PATCH /applications/{id}
+### DELETE /applications/{id}
+Archiva (status=ARCHIVED). Soft-archive, no hard delete.
+
+### GET /campaigns
+Campañas creadas por el usuario.
+
+### GET /campaigns/explore?country=&sdkInt=
+Campañas en `PUBLISHED` o `RECRUITING` filtrables por país y SDK.
+
+### GET /campaigns/{id}
+Visible para el owner o si está en reclutamiento/activa.
+
+### POST /campaigns
+Body: `{ applicationId, name, description?, testType?, durationDays, startsAt?, targetTesters?, allowedCountries?, minAndroidSdk?, maxAndroidSdk?, instructions? }`  
+→ DRAFT. Coste por tester: 7→12 TC, 14→20 TC, 30→30 TC. Free: 1 campaña no terminal.
+
+### PATCH /campaigns/{id}
+Solo en DRAFT.
+
+### POST /campaigns/{id}/publish
+Reserva `targetTesters * costPerTesterTc` en el wallet (idempotent) y pasa a `RECRUITING`.
+
+### POST /campaigns/{id}/cancel
+Libera reserva OPEN si existía; status `CANCELLED`.
 
 ## Fase 3 — Groups
 
