@@ -1,6 +1,8 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/theme/app_spacing.dart';
+import '../../../core/widgets/app_widgets.dart';
 import '../../authentication/presentation/auth_controller.dart';
 import '../data/analytics_repository.dart';
 
@@ -24,75 +26,104 @@ class AnalyticsScreen extends ConsumerWidget {
     final isAdmin = user?.isAdmin ?? false;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Analíticas')),
-      body: ListView(
-        padding: const EdgeInsets.all(24),
-        children: [
-          Text('Mi resumen', style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 12),
-          mine.when(
-            data: (a) => Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _row('Aplicaciones', '${a.applications}'),
-                _row('Campañas', '${a.campaigns} (${a.activeCampaigns} activas)'),
-                _row('Plazas', '${a.occupiedSeats}/${a.totalTargetTesters}'),
-                _row('Misiones', '${a.missions}'),
-                _row(
-                  'Envíos',
-                  '${a.submissions} (${a.approvedSubmissions} aprobados)',
+      body: AppScaffoldBackground(
+        child: SafeArea(
+          child: ListView(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            children: [
+              Row(
+                children: [
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.arrow_back_rounded),
+                  ),
+                  Text('Analíticas', style: Theme.of(context).textTheme.titleLarge),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.md),
+              const SectionHeader(
+                title: 'Mi resumen',
+                subtitle: 'Actividad de tus apps y campañas',
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              mine.when(
+                data: (a) => GridView.count(
+                  crossAxisCount: 2,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  mainAxisSpacing: AppSpacing.sm,
+                  crossAxisSpacing: AppSpacing.sm,
+                  childAspectRatio: 1.35,
+                  children: [
+                    StatCard(label: 'Apps', value: '${a.applications}', icon: Icons.apps_rounded),
+                    StatCard(
+                      label: 'Campañas activas',
+                      value: '${a.activeCampaigns}',
+                      icon: Icons.campaign_rounded,
+                      tone: BadgeTone.accent,
+                    ),
+                    StatCard(
+                      label: 'Plazas',
+                      value: '${a.occupiedSeats}/${a.totalTargetTesters}',
+                      icon: Icons.groups_rounded,
+                    ),
+                    StatCard(
+                      label: 'Aprobados',
+                      value: '${a.approvedSubmissions}',
+                      icon: Icons.verified_rounded,
+                      tone: BadgeTone.success,
+                    ),
+                    StatCard(
+                      label: 'Feedback',
+                      value: '${a.feedbackReports}',
+                      icon: Icons.feedback_outlined,
+                      tone: BadgeTone.warning,
+                    ),
+                    StatCard(
+                      label: 'Créditos',
+                      value: '${a.availableCredits}',
+                      icon: Icons.account_balance_wallet_outlined,
+                    ),
+                  ],
                 ),
-                _row('Feedback', '${a.feedbackReports}'),
-                _row(
-                  'Créditos',
-                  '${a.availableCredits} disp. / ${a.reservedCredits} res.',
+                loading: () => const LoadingState(),
+                error: (e, _) => ErrorState(message: '$e'),
+              ),
+              if (isAdmin) ...[
+                const SizedBox(height: AppSpacing.lg),
+                const SectionHeader(
+                  title: 'Plataforma',
+                  subtitle: 'Vista admin',
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                Consumer(
+                  builder: (context, ref, _) {
+                    final platform = ref.watch(platformAnalyticsProvider);
+                    return platform.when(
+                      data: (p) => GridView.count(
+                        crossAxisCount: 2,
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        mainAxisSpacing: AppSpacing.sm,
+                        crossAxisSpacing: AppSpacing.sm,
+                        childAspectRatio: 1.35,
+                        children: [
+                          StatCard(label: 'Usuarios', value: '${p.users}'),
+                          StatCard(label: 'Developers', value: '${p.developers}'),
+                          StatCard(label: 'Testers', value: '${p.testers}'),
+                          StatCard(label: 'Campañas', value: '${p.campaigns}'),
+                        ],
+                      ),
+                      loading: () => const LoadingState(),
+                      error: (e, _) => ErrorState(message: '$e'),
+                    );
+                  },
                 ),
               ],
-            ),
-            loading: () => const LinearProgressIndicator(),
-            error: (e, _) => Text('Error: $e'),
+            ],
           ),
-          if (isAdmin) ...[
-            const SizedBox(height: 32),
-            Text(
-              'Plataforma (admin)',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 12),
-            Consumer(
-              builder: (context, ref, _) {
-                final platform = ref.watch(platformAnalyticsProvider);
-                return platform.when(
-                  data: (p) => Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _row('Usuarios', '${p.users}'),
-                      _row('Developers', '${p.developers}'),
-                      _row('Testers', '${p.testers}'),
-                      _row('Campañas', '${p.campaigns}'),
-                      _row('Envíos', '${p.submissions}'),
-                      _row('Feedback', '${p.feedbackReports}'),
-                    ],
-                  ),
-                  loading: () => const LinearProgressIndicator(),
-                  error: (e, _) => Text('Error: $e'),
-                );
-              },
-            ),
-          ],
-        ],
+        ),
       ),
     );
   }
-
-  Widget _row(String label, String value) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(label),
-            Text(value, style: const TextStyle(fontWeight: FontWeight.w600)),
-          ],
-        ),
-      );
 }

@@ -1,6 +1,9 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_spacing.dart';
+import '../../../core/widgets/app_widgets.dart';
 import '../data/groups_repository.dart';
 import '../domain/group_models.dart';
 
@@ -16,41 +19,98 @@ class MyGroupsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final asyncGroups = ref.watch(myGroupsProvider);
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Mis grupos'),
-        actions: [
-          IconButton(
-            onPressed: () => ref.invalidate(myGroupsProvider),
-            icon: const Icon(Icons.refresh),
-          ),
-        ],
-      ),
-      body: asyncGroups.when(
-        data: (groups) {
-          if (groups.isEmpty) {
-            return const Center(
-              child: Text('Aún no estás en ningún grupo. Explora campañas para unirte.'),
-            );
-          }
-          return ListView.separated(
-            itemCount: groups.length,
-            separatorBuilder: (_, _) => const Divider(height: 1),
-            itemBuilder: (context, index) {
-              final g = groups[index];
-              return ListTile(
-                title: Text('${g.campaignName ?? 'Campaña'} · ${g.name}'),
-                subtitle: Text(
-                  '${g.status} · ${g.occupiedSeats}/${g.targetSize} plazas\n'
-                  'Tu estado: ${g.myMembershipStatus ?? '—'}',
+      body: AppScaffoldBackground(
+        child: SafeArea(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.md,
+                  AppSpacing.sm,
+                  AppSpacing.lg,
+                  AppSpacing.sm,
                 ),
-                isThreeLine: true,
-                trailing: _MemberActions(group: g),
-              );
-            },
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error: $e')),
+                child: Row(
+                  children: [
+                    IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.arrow_back_rounded),
+                    ),
+                    Expanded(
+                      child: Text('Mis grupos', style: Theme.of(context).textTheme.titleLarge),
+                    ),
+                    IconButton(
+                      onPressed: () => ref.invalidate(myGroupsProvider),
+                      icon: const Icon(Icons.refresh_rounded),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: asyncGroups.when(
+                  data: (groups) {
+                    if (groups.isEmpty) {
+                      return const EmptyState(
+                        icon: Icons.groups_outlined,
+                        title: 'Todavía no estás en un grupo',
+                        message: 'Explora campañas abiertas y únete para empezar.',
+                      );
+                    }
+                    return ListView.separated(
+                      padding: const EdgeInsets.all(AppSpacing.lg),
+                      itemCount: groups.length,
+                      separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.sm),
+                      itemBuilder: (context, index) {
+                        final g = groups[index];
+                        final progress = g.targetSize == 0
+                            ? 0.0
+                            : g.occupiedSeats / g.targetSize;
+                        return AppCard(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      '${g.campaignName ?? 'Campaña'} · ${g.name}',
+                                      style: Theme.of(context).textTheme.titleMedium,
+                                    ),
+                                  ),
+                                  StatusBadge(label: g.status, tone: toneForStatus(g.status)),
+                                ],
+                              ),
+                              const SizedBox(height: AppSpacing.sm),
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: LinearProgressIndicator(
+                                  value: progress.clamp(0, 1),
+                                  minHeight: 8,
+                                  backgroundColor: AppColors.border,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                '${g.occupiedSeats}/${g.targetSize} plazas · Tu estado: ${g.myMembershipStatus ?? '—'}',
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: _MemberActions(group: g),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    );
+                  },
+                  loading: () => const LoadingState(),
+                  error: (e, _) => ErrorState(message: '$e'),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

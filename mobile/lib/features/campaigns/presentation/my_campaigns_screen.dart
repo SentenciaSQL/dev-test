@@ -1,6 +1,8 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/theme/app_spacing.dart';
+import '../../../core/widgets/app_widgets.dart';
 import '../../ai_assistant/presentation/ai_insights_screen.dart';
 import '../../applications/data/applications_repository.dart';
 import '../../applications/domain/application_models.dart';
@@ -21,116 +23,164 @@ class MyCampaignsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final asyncCampaigns = ref.watch(myCampaignsProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Mis campañas')),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showCreateDialog(context, ref),
-        icon: const Icon(Icons.campaign_outlined),
-        label: const Text('Nueva'),
+        icon: const Icon(Icons.add_rounded),
+        label: const Text('Nueva campaña'),
       ),
-      body: asyncCampaigns.when(
-        data: (campaigns) {
-          if (campaigns.isEmpty) {
-            return const Center(child: Text('Aún no tienes campañas.'));
-          }
-          return ListView.separated(
-            itemCount: campaigns.length,
-            separatorBuilder: (_, _) => const Divider(height: 1),
-            itemBuilder: (context, index) {
-              final c = campaigns[index];
-              return ListTile(
-                title: Text(c.name),
-                subtitle: Text(
-                  '${c.applicationName ?? c.applicationId}\n'
-                  '${c.status} · ${c.targetTesters} testers · ${c.totalCostTc} TC',
+      body: AppScaffoldBackground(
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.lg,
+                  AppSpacing.md,
+                  AppSpacing.lg,
+                  AppSpacing.sm,
                 ),
-                isThreeLine: true,
-                trailing: Wrap(
-                  spacing: 4,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (c.status != 'DRAFT')
-                      IconButton(
-                        tooltip: 'Ver grupos',
-                        icon: const Icon(Icons.groups_outlined),
-                        onPressed: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute<void>(
-                              builder: (_) => CampaignGroupsScreen(
-                                campaignId: c.id,
-                                campaignName: c.name,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    IconButton(
-                      tooltip: 'AI insights',
-                      icon: const Icon(Icons.auto_awesome_outlined),
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute<void>(
-                            builder: (_) => AiInsightsScreen(
-                              campaignId: c.id,
-                              campaignName: c.name,
-                            ),
-                          ),
-                        );
-                      },
+                    Text('Mis campañas', style: Theme.of(context).textTheme.headlineSmall),
+                    Text(
+                      'Borradores, reclutamiento y seguimiento',
+                      style: Theme.of(context).textTheme.bodyMedium,
                     ),
-                    if (c.status != 'DRAFT')
-                      IconButton(
-                        tooltip: 'Eventos SSE',
-                        icon: const Icon(Icons.stream_outlined),
-                        onPressed: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute<void>(
-                              builder: (_) => CampaignEventsScreen(
-                                campaignId: c.id,
-                                campaignName: c.name,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    if (c.status == 'DRAFT')
-                      IconButton(
-                        tooltip: 'Publicar',
-                        icon: const Icon(Icons.publish_outlined),
-                        onPressed: () async {
-                          try {
-                            await ref
-                                .read(campaignsRepositoryProvider)
-                                .publish(c.id);
-                            ref.invalidate(myCampaignsProvider);
-                          } catch (e) {
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Publicar falló: $e')),
-                              );
-                            }
-                          }
-                        },
-                      ),
-                    if (c.status != 'CANCELLED' &&
-                        c.status != 'COMPLETED' &&
-                        c.status != 'EXPIRED')
-                      IconButton(
-                        tooltip: 'Cancelar',
-                        icon: const Icon(Icons.cancel_outlined),
-                        onPressed: () async {
-                          await ref
-                              .read(campaignsRepositoryProvider)
-                              .cancel(c.id);
-                          ref.invalidate(myCampaignsProvider);
-                        },
-                      ),
                   ],
                 ),
-              );
-            },
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error: $e')),
+              ),
+              Expanded(
+                child: asyncCampaigns.when(
+                  data: (campaigns) {
+                    if (campaigns.isEmpty) {
+                      return EmptyState(
+                        icon: Icons.campaign_outlined,
+                        title: 'Aún no tienes campañas',
+                        message: 'Crea un borrador y publícalo para empezar a reclutar.',
+                        actionLabel: 'Nueva campaña',
+                        onAction: () => _showCreateDialog(context, ref),
+                      );
+                    }
+                    return RefreshIndicator(
+                      onRefresh: () async => ref.invalidate(myCampaignsProvider),
+                      child: ListView.separated(
+                        padding: const EdgeInsets.fromLTRB(
+                          AppSpacing.lg,
+                          0,
+                          AppSpacing.lg,
+                          100,
+                        ),
+                        itemCount: campaigns.length,
+                        separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.sm),
+                        itemBuilder: (context, index) {
+                          final c = campaigns[index];
+                          return CampaignCard(
+                            title: c.name,
+                            subtitle: c.applicationName ?? c.applicationId,
+                            status: c.status,
+                            meta: [
+                              '${c.targetTesters} testers',
+                              '${c.totalCostTc} TC',
+                              '${c.durationDays} días',
+                            ],
+                            trailing: Wrap(
+                              spacing: 4,
+                              children: [
+                                if (c.status != 'DRAFT')
+                                  IconButton.filledTonal(
+                                    tooltip: 'Grupos',
+                                    onPressed: () {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute<void>(
+                                          builder: (_) => CampaignGroupsScreen(
+                                            campaignId: c.id,
+                                            campaignName: c.name,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    icon: const Icon(Icons.groups_outlined),
+                                  ),
+                                IconButton.filledTonal(
+                                  tooltip: 'AI insights',
+                                  onPressed: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute<void>(
+                                        builder: (_) => AiInsightsScreen(
+                                          campaignId: c.id,
+                                          campaignName: c.name,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  icon: const Icon(Icons.auto_awesome_outlined),
+                                ),
+                                if (c.status != 'DRAFT')
+                                  IconButton.filledTonal(
+                                    tooltip: 'SSE',
+                                    onPressed: () {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute<void>(
+                                          builder: (_) => CampaignEventsScreen(
+                                            campaignId: c.id,
+                                            campaignName: c.name,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    icon: const Icon(Icons.stream_outlined),
+                                  ),
+                                if (c.status == 'DRAFT')
+                                  IconButton.filledTonal(
+                                    tooltip: 'Publicar',
+                                    onPressed: () async {
+                                      try {
+                                        await ref
+                                            .read(campaignsRepositoryProvider)
+                                            .publish(c.id);
+                                        ref.invalidate(myCampaignsProvider);
+                                      } catch (e) {
+                                        if (context.mounted) {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(content: Text('Publicar falló: $e')),
+                                          );
+                                        }
+                                      }
+                                    },
+                                    icon: const Icon(Icons.publish_outlined),
+                                  ),
+                                if (c.status != 'CANCELLED' &&
+                                    c.status != 'COMPLETED' &&
+                                    c.status != 'EXPIRED')
+                                  IconButton.filledTonal(
+                                    tooltip: 'Cancelar',
+                                    onPressed: () async {
+                                      await ref
+                                          .read(campaignsRepositoryProvider)
+                                          .cancel(c.id);
+                                      ref.invalidate(myCampaignsProvider);
+                                    },
+                                    icon: const Icon(Icons.cancel_outlined),
+                                  ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    );
+                  },
+                  loading: () => const LoadingState(),
+                  error: (e, _) => ErrorState(
+                    message: '$e',
+                    onRetry: () => ref.invalidate(myCampaignsProvider),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

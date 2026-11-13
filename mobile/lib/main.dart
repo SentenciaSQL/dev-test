@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/config/app_config.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
+import 'core/widgets/app_widgets.dart';
 import 'features/authentication/presentation/auth_controller.dart';
 
 void main() {
@@ -21,8 +22,10 @@ class AppTrialApp extends ConsumerWidget {
       return MaterialApp(
         title: AppConfig.appName,
         theme: AppTheme.light(),
+        darkTheme: AppTheme.dark(),
+        themeMode: ThemeMode.system,
         home: const Scaffold(
-          body: Center(child: CircularProgressIndicator()),
+          body: AppScaffoldBackground(child: LoadingState(label: 'Preparando AppTrial…')),
         ),
       );
     }
@@ -31,6 +34,8 @@ class AppTrialApp extends ConsumerWidget {
     return MaterialApp.router(
       title: AppConfig.appName,
       theme: AppTheme.light(),
+      darkTheme: AppTheme.dark(),
+      themeMode: ThemeMode.system,
       routerConfig: router,
     );
   }

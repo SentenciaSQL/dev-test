@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/config/app_config.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_spacing.dart';
+import '../../../core/widgets/app_widgets.dart';
 import 'auth_controller.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -39,68 +42,95 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Widget build(BuildContext context) {
     final auth = ref.watch(authControllerProvider);
     return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 420),
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      AppConfig.appName,
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                            fontWeight: FontWeight.w700,
+      body: AppScaffoldBackground(
+        child: SafeArea(
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 440),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(AppSpacing.lg),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const SizedBox(height: AppSpacing.xl),
+                      Container(
+                        width: 64,
+                        height: 64,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [AppColors.primary, AppColors.accent],
                           ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Conecta desarrolladores Android con testers.',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    const SizedBox(height: 32),
-                    TextFormField(
-                      controller: _email,
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: const InputDecoration(labelText: 'Email'),
-                      validator: (v) =>
-                          v == null || !v.contains('@') ? 'Email inválido' : null,
-                    ),
-                    const SizedBox(height: 12),
-                    TextFormField(
-                      controller: _password,
-                      obscureText: true,
-                      decoration: const InputDecoration(labelText: 'Contraseña'),
-                      validator: (v) =>
-                          v == null || v.length < 8 ? 'Mínimo 8 caracteres' : null,
-                    ),
-                    if (auth.error != null) ...[
-                      const SizedBox(height: 12),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: const Icon(Icons.science_rounded, color: Colors.white, size: 32),
+                      ),
+                      const SizedBox(height: AppSpacing.md),
                       Text(
-                        auth.error!,
-                        style: TextStyle(color: Theme.of(context).colorScheme.error),
+                        AppConfig.appName,
+                        style: Theme.of(context).textTheme.headlineMedium,
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'Conecta desarrolladores Android con testers de confianza.',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                      const SizedBox(height: AppSpacing.xl),
+                      AppCard(
+                        child: Column(
+                          children: [
+                            CustomTextField(
+                              controller: _email,
+                              label: 'Email',
+                              keyboardType: TextInputType.emailAddress,
+                              prefixIcon: Icons.mail_outline_rounded,
+                              validator: (v) =>
+                                  v == null || !v.contains('@') ? 'Email inválido' : null,
+                            ),
+                            const SizedBox(height: AppSpacing.sm),
+                            CustomTextField(
+                              controller: _password,
+                              label: 'Contraseña',
+                              obscureText: true,
+                              prefixIcon: Icons.lock_outline_rounded,
+                              validator: (v) =>
+                                  v == null || v.length < 8 ? 'Mínimo 8 caracteres' : null,
+                            ),
+                            if (auth.error != null) ...[
+                              const SizedBox(height: AppSpacing.sm),
+                              Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.all(AppSpacing.sm),
+                                decoration: BoxDecoration(
+                                  color: AppColors.errorSoft,
+                                  borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                                ),
+                                child: Text(
+                                  auth.error!,
+                                  style: const TextStyle(
+                                    color: AppColors.error,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ],
+                            const SizedBox(height: AppSpacing.md),
+                            PrimaryButton(
+                              label: 'Iniciar sesión',
+                              loading: auth.loading,
+                              onPressed: _submit,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      SecondaryButton(
+                        label: 'Crear cuenta',
+                        onPressed: () => context.go('/register'),
                       ),
                     ],
-                    const SizedBox(height: 24),
-                    FilledButton(
-                      onPressed: auth.loading ? null : _submit,
-                      child: auth.loading
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Text('Iniciar sesión'),
-                    ),
-                    TextButton(
-                      onPressed: () => context.go('/register'),
-                      child: const Text('Crear cuenta'),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
