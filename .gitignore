@@ -31,5 +31,9 @@ mobile/android/app/release/
 *.pem
 *.p12
 
+# Local evidence uploads
+backend/data/
+data/evidence/
+
 # Logs
 *.log

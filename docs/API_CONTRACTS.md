@@ -101,26 +101,32 @@ Cancela grupos y marca miembros ocupantes como `DROPPED`.
 
 ## Fase 4 — Missions / Evidence / Feedback
 
-### CRUD misiones (developer owner)
-### POST /missions/{id}/submissions
-### POST /submissions/{id}/evidence (presigned upload flow)
-### POST /campaigns/{id}/feedback
+### GET/POST /campaigns/{id}/missions · PUT /campaigns/{id}/missions/{missionId}
+### POST /missions/{id}/submissions · GET /missions/{id}/submissions · GET /me/submissions
+### POST /submissions/{id}/review `{ status: UNDER_REVIEW|APPROVED|REJECTED }`
+Al aprobar con `rewardTc > 0` acredita `REWARD` al tester (idempotente).
+### POST /submissions/{id}/evidence-uploads → `{ evidenceId, storageKey, uploadUrl }`
+### PUT /evidence-uploads/{encodedKey} (local; en prod = S3 firmado)
+### GET /submissions/{id}/evidence
+### POST/GET /campaigns/{id}/feedback · GET /me/feedback
 
 ## Fase 5 — Credits
 
-### GET /wallet
-### GET /wallet/transactions
-*(Mutaciones solo vía servicios internos / billing / rewards)*
+### GET /wallet · GET /wallet/transactions
+### Consumo de plaza
+Al pasar un miembro a `CONFIRMED` se ejecuta `SPEND` de `costPerTesterTc` sobre la reserva OPEN de la campaña.
+### Recompensas
+Solo vía revisión de misiones / billing / admin — nunca desde Flutter.
 
 ## Fase 6 — Billing
 
-### GET /billing/products
+### GET /billing/products · GET /billing/plans · GET /billing/subscriptions
 ### POST /billing/purchases/verify  
 Headers: `Idempotency-Key`  
 Body: `{ productId, purchaseToken, packageName }`  
-→ acredita créditos o activa suscripción tras verify con Google.
-
-### POST /billing/rtdn (interno, Pub/Sub push)
+Verifica con Play (modo `MOCK` local o `GOOGLE` con Android Publisher API).  
+Acredita `PURCHASE` / activa suscripción + `SUBSCRIPTION_GRANT`.
+### POST /billing/rtdn (Pub/Sub push, permitAll)
 
 ## SSE (futuro)
 

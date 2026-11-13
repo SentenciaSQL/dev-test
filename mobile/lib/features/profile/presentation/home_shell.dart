@@ -4,9 +4,11 @@ import 'package:go_router/go_router.dart';
 
 import '../../applications/presentation/applications_screen.dart';
 import '../../authentication/presentation/auth_controller.dart';
+import '../../billing/presentation/billing_screen.dart';
 import '../../campaigns/presentation/explore_campaigns_screen.dart';
 import '../../campaigns/presentation/my_campaigns_screen.dart';
-import '../../devices/presentation/devices_screen.dart';
+import '../../feedback/presentation/feedback_screen.dart';
+import '../../missions/presentation/missions_hub_screen.dart';
 import '../../tester_groups/presentation/my_groups_screen.dart';
 import '../../wallet/presentation/wallet_screen.dart';
 import 'profile_screen.dart';
@@ -28,28 +30,24 @@ class _HomeShellState extends ConsumerState<HomeShell> {
     final isTester = user?.isTester ?? false;
 
     final pages = <Widget>[
-      _HomeDashboard(displayName: user?.displayName ?? ''),
-      if (isTester) const ExploreCampaignsScreen(),
-      if (isTester) const MyGroupsScreen(),
-      if (isDeveloper) const ApplicationsScreen(),
-      if (isDeveloper) const MyCampaignsScreen(),
-      if (isTester) const DevicesScreen(),
+      _HomeDashboard(
+        displayName: user?.displayName ?? '',
+        isDeveloper: isDeveloper,
+        isTester: isTester,
+      ),
+      if (isTester) const ExploreCampaignsScreen() else const MyCampaignsScreen(),
+      const MissionsHubScreen(),
       const WalletScreen(),
       const ProfileScreen(),
     ];
 
     final destinations = <NavigationDestination>[
       const NavigationDestination(icon: Icon(Icons.home_outlined), label: 'Inicio'),
-      if (isTester)
-        const NavigationDestination(icon: Icon(Icons.explore_outlined), label: 'Explorar'),
-      if (isTester)
-        const NavigationDestination(icon: Icon(Icons.groups_outlined), label: 'Grupos'),
-      if (isDeveloper)
-        const NavigationDestination(icon: Icon(Icons.apps_outlined), label: 'Apps'),
-      if (isDeveloper)
-        const NavigationDestination(icon: Icon(Icons.campaign_outlined), label: 'Campañas'),
-      if (isTester)
-        const NavigationDestination(icon: Icon(Icons.phone_android), label: 'Dispositivos'),
+      NavigationDestination(
+        icon: Icon(isTester ? Icons.explore_outlined : Icons.campaign_outlined),
+        label: isTester ? 'Explorar' : 'Campañas',
+      ),
+      const NavigationDestination(icon: Icon(Icons.flag_outlined), label: 'Misiones'),
       const NavigationDestination(
         icon: Icon(Icons.account_balance_wallet_outlined),
         label: 'Wallet',
@@ -71,9 +69,15 @@ class _HomeShellState extends ConsumerState<HomeShell> {
 }
 
 class _HomeDashboard extends ConsumerWidget {
-  const _HomeDashboard({required this.displayName});
+  const _HomeDashboard({
+    required this.displayName,
+    required this.isDeveloper,
+    required this.isTester,
+  });
 
   final String displayName;
+  final bool isDeveloper;
+  final bool isTester;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -106,9 +110,43 @@ class _HomeDashboard extends ConsumerWidget {
           ),
           const SizedBox(height: 24),
           Text(
-            'Fase 3: al publicar una campaña se crean grupos (default 15). '
-            'Los testers se unen con asignación automática; pueden confirmar o abandonar.',
+            'Fases 4–6 activas: misiones, evidencias, feedback, recompensas y Google Play Billing.',
             style: Theme.of(context).textTheme.bodyLarge,
+          ),
+          const SizedBox(height: 16),
+          if (isDeveloper)
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.apps_outlined),
+              title: const Text('Mis aplicaciones'),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(builder: (_) => const ApplicationsScreen()),
+              ),
+            ),
+          if (isTester)
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.groups_outlined),
+              title: const Text('Mis grupos'),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(builder: (_) => const MyGroupsScreen()),
+              ),
+            ),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.feedback_outlined),
+            title: const Text('Feedback'),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(builder: (_) => const FeedbackScreen()),
+            ),
+          ),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.shopping_cart_outlined),
+            title: const Text('Comprar créditos / planes'),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(builder: (_) => const BillingScreen()),
+            ),
           ),
         ],
       ),

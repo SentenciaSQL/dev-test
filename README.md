@@ -35,7 +35,7 @@ infra/       docker-compose (Postgres, Redis, LocalStack S3)
 
 ## Estado actual
 
-**Fases 0–3:** auth/perfil/dispositivos/wallet, apps/campañas con reserva TC, grupos de testers (auto-creación, join, confirm/drop).
+**Fases 0–6:** misiones/evidencias/feedback, ledger con recompensas y SPEND por plaza, Google Play Billing (verify MOCK/GOOGLE + RTDN stub).
 
 No se incluyen tests automatizados (restricción del proyecto).
 

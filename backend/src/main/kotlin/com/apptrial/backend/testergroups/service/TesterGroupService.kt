@@ -2,6 +2,7 @@ package com.apptrial.backend.testergroups.service
 
 import com.apptrial.backend.campaigns.domain.CampaignEntity
 import com.apptrial.backend.campaigns.domain.CampaignRepository
+import com.apptrial.backend.credits.service.CampaignSeatBillingService
 import com.apptrial.backend.shared.config.AppProperties
 import com.apptrial.backend.shared.error.ConflictException
 import com.apptrial.backend.shared.error.ForbiddenException
@@ -24,6 +25,7 @@ class TesterGroupService(
 	private val campaignRepository: CampaignRepository,
 	private val groupRepository: CampaignGroupRepository,
 	private val memberRepository: GroupMemberRepository,
+	private val seatBillingService: CampaignSeatBillingService,
 	private val props: AppProperties,
 ) {
 	companion object {
@@ -245,6 +247,10 @@ class TesterGroupService(
 		member.status = status
 		member.updatedAt = now
 		memberRepository.save(member)
+
+		if (status == "CONFIRMED") {
+			seatBillingService.consumeSeat(campaign, member.id)
+		}
 
 		if (status == "DROPPED" && group.status == "READY") {
 			group.status = "RECRUITING"

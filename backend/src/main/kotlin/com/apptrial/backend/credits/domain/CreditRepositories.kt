@@ -9,6 +9,7 @@ interface CreditWalletRepository : JpaRepository<CreditWalletEntity, UUID> {
 
 interface CreditTransactionRepository : JpaRepository<CreditTransactionEntity, UUID> {
 	fun findByIdempotencyKey(idempotencyKey: String): CreditTransactionEntity?
+	fun findAllByWalletIdOrderByCreatedAtDesc(walletId: UUID): List<CreditTransactionEntity>
 }
 
 interface CreditReservationRepository : JpaRepository<CreditReservationEntity, UUID> {
