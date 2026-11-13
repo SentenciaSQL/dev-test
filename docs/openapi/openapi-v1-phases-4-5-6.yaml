@@ -1,0 +1,58 @@
+openapi: 3.0.3
+info:
+  title: AppTrial API — Phases 4–6
+  version: 0.6.0
+servers:
+  - url: http://localhost:8080/api/v1
+paths:
+  /campaigns/{campaignId}/missions:
+    get:
+      security: [{ bearerAuth: [] }]
+      responses: { '200': { description: OK } }
+    post:
+      security: [{ bearerAuth: [] }]
+      responses: { '201': { description: Created } }
+  /missions/{missionId}/submissions:
+    post:
+      security: [{ bearerAuth: [] }]
+      responses: { '201': { description: Submitted } }
+    get:
+      security: [{ bearerAuth: [] }]
+      responses: { '200': { description: OK } }
+  /submissions/{submissionId}/review:
+    post:
+      security: [{ bearerAuth: [] }]
+      responses: { '200': { description: Reviewed } }
+  /submissions/{submissionId}/evidence-uploads:
+    post:
+      security: [{ bearerAuth: [] }]
+      responses: { '201': { description: Upload slot } }
+  /campaigns/{campaignId}/feedback:
+    post:
+      security: [{ bearerAuth: [] }]
+      responses: { '201': { description: Created } }
+  /wallet/transactions:
+    get:
+      security: [{ bearerAuth: [] }]
+      responses: { '200': { description: Ledger } }
+  /billing/products:
+    get:
+      security: [{ bearerAuth: [] }]
+      responses: { '200': { description: Catalog } }
+  /billing/purchases/verify:
+    post:
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          schema: { type: string }
+      responses: { '200': { description: Verified } }
+  /billing/rtdn:
+    post:
+      responses: { '204': { description: Ack } }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

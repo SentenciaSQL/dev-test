@@ -28,11 +28,13 @@ class SecurityConfig(
 			.authorizeHttpRequests {
 				it.requestMatchers(
 					"/api/v1/auth/**",
+					"/api/v1/billing/rtdn",
 					"/actuator/health",
 					"/actuator/info",
 					"/v3/api-docs/**",
 					"/swagger-ui/**",
 				).permitAll()
+				it.requestMatchers(HttpMethod.PUT, "/api/v1/evidence-uploads/**").permitAll()
 				it.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 				it.anyRequest().authenticated()
 			}

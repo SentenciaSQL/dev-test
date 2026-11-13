@@ -24,7 +24,7 @@
 
 ## Estado actual del repositorio
 
-**Fases 0–3:** auth/perfil/dispositivos/wallet, apps/campañas con reserva TC, grupos de testers (creación al publicar, join automático, transiciones de membresía).
+**Fases 0–6:** además misiones/evidencias/feedback, recompensas y SPEND por plaza confirmada, catálogo Play + verify de compras/suscripciones (MOCK/GOOGLE) y RTDN stub.
 
 ## DoD por fase
 

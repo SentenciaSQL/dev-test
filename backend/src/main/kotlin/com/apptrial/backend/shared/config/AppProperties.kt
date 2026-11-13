@@ -26,6 +26,8 @@ data class AppProperties(
 
 	data class Billing(
 		val packageName: String = "com.apptrial.mobile",
+		/** MOCK for local/dev; GOOGLE requires Android Publisher client configuration. */
+		val verificationMode: String = "MOCK",
 	)
 
 	data class Credits(

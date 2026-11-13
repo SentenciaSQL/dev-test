@@ -51,6 +51,10 @@ apptrial:
   billing:
     # Google Play package name of THIS platform app (not tester target apps)
     package-name: ${PLAY_PACKAGE_NAME:com.apptrial.mobile}
+    verification-mode: ${PLAY_VERIFICATION_MODE:MOCK}
+  storage:
+    local-path: ${EVIDENCE_LOCAL_PATH:./data/evidence}
+    public-base-url: ${PUBLIC_BASE_URL:http://localhost:8080}
   credits:
     free-initial-grant: 20
     default-group-size: 15
