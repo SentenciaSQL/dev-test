@@ -3,8 +3,8 @@ spring:
     name: apptrial-backend
   datasource:
     url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/apptrial}
-    username: ${DATABASE_USER:apptrial}
-    password: ${DATABASE_PASSWORD:apptrial}
+    username: ${DATABASE_USER:postgres}
+    password: ${DATABASE_PASSWORD:postgres}
   jpa:
     open-in-view: false
     hibernate:
