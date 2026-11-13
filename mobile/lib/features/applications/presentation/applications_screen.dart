@@ -1,6 +1,8 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/theme/app_spacing.dart';
+import '../../../core/widgets/app_widgets.dart';
 import '../data/applications_repository.dart';
 import '../domain/application_models.dart';
 
@@ -16,42 +18,104 @@ class ApplicationsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final asyncApps = ref.watch(applicationsProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Mis aplicaciones')),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showCreateDialog(context, ref),
-        icon: const Icon(Icons.add),
+        icon: const Icon(Icons.add_rounded),
         label: const Text('Registrar'),
       ),
-      body: asyncApps.when(
-        data: (apps) {
-          if (apps.isEmpty) {
-            return const Center(
-              child: Text('Registra tu primera app Android.'),
-            );
-          }
-          return ListView.separated(
-            itemCount: apps.length,
-            separatorBuilder: (_, _) => const Divider(height: 1),
-            itemBuilder: (context, index) {
-              final app = apps[index];
-              return ListTile(
-                title: Text(app.name),
-                subtitle: Text('${app.packageName}\n${app.status}'),
-                isThreeLine: true,
-                trailing: IconButton(
-                  tooltip: 'Archivar',
-                  icon: const Icon(Icons.archive_outlined),
-                  onPressed: () async {
-                    await ref.read(applicationsRepositoryProvider).archive(app.id);
-                    ref.invalidate(applicationsProvider);
-                  },
+      body: AppScaffoldBackground(
+        child: SafeArea(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.md,
+                  AppSpacing.sm,
+                  AppSpacing.lg,
+                  AppSpacing.sm,
                 ),
-              );
-            },
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error: $e')),
+                child: Row(
+                  children: [
+                    IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.arrow_back_rounded),
+                    ),
+                    Expanded(
+                      child: Text(
+                        'Mis aplicaciones',
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: asyncApps.when(
+                  data: (apps) {
+                    if (apps.isEmpty) {
+                      return EmptyState(
+                        icon: Icons.apps_outage_outlined,
+                        title: 'Sin apps todavía',
+                        message: 'Registra tu primera app Android para crear campañas.',
+                        actionLabel: 'Registrar',
+                        onAction: () => _showCreateDialog(context, ref),
+                      );
+                    }
+                    return ListView.separated(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppSpacing.lg,
+                        0,
+                        AppSpacing.lg,
+                        100,
+                      ),
+                      itemCount: apps.length,
+                      separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.sm),
+                      itemBuilder: (context, index) {
+                        final app = apps[index];
+                        return AppCard(
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 46,
+                                height: 46,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFE8EEFF),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: const Icon(Icons.android_rounded),
+                              ),
+                              const SizedBox(width: AppSpacing.sm),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(app.name, style: Theme.of(context).textTheme.titleMedium),
+                                    Text(app.packageName, style: Theme.of(context).textTheme.bodySmall),
+                                  ],
+                                ),
+                              ),
+                              StatusBadge(label: app.status, tone: toneForStatus(app.status)),
+                              IconButton(
+                                tooltip: 'Archivar',
+                                icon: const Icon(Icons.archive_outlined),
+                                onPressed: () async {
+                                  await ref.read(applicationsRepositoryProvider).archive(app.id);
+                                  ref.invalidate(applicationsProvider);
+                                },
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    );
+                  },
+                  loading: () => const LoadingState(),
+                  error: (e, _) => ErrorState(message: '$e'),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

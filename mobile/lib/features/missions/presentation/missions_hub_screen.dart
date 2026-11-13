@@ -1,6 +1,8 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/theme/app_spacing.dart';
+import '../../../core/widgets/app_widgets.dart';
 import '../../campaigns/data/campaigns_repository.dart';
 import '../../campaigns/domain/campaign_models.dart';
 import '../data/missions_repository.dart';
@@ -31,31 +33,45 @@ class MissionsHubScreen extends ConsumerWidget {
     final submissionsAsync = ref.watch(mySubmissionsProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Misiones')),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
+      body: AppScaffoldBackground(
+        child: SafeArea(
+          child: ListView(
+        padding: const EdgeInsets.all(AppSpacing.lg),
         children: [
-          Text('Campañas', style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 8),
+          Text('Misiones', style: Theme.of(context).textTheme.headlineSmall),
+          const SizedBox(height: 4),
+          Text(
+            'Actividades por campaña y tus envíos',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          const SectionHeader(title: 'Campañas'),
+          const SizedBox(height: AppSpacing.sm),
           campaignsAsync.when(
             data: (campaigns) {
               if (campaigns.isEmpty) {
-                return const Text('No hay campañas disponibles.');
+                return const EmptyState(
+                  icon: Icons.flag_outlined,
+                  title: 'Sin campañas',
+                  message: 'Cuando tengas campañas verás sus misiones aquí.',
+                );
               }
               return Column(
                 children: campaigns
                     .map(
-                      (c) => ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(c.name),
-                        subtitle: Text(c.status),
-                        trailing: const Icon(Icons.chevron_right),
-                        onTap: () => Navigator.of(context).push(
-                          MaterialPageRoute<void>(
-                            builder: (_) => CampaignMissionsScreen(
-                              campaignId: c.id,
-                              campaignName: c.name,
-                              isOwner: true,
+                      (c) => Padding(
+                        padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                        child: CampaignCard(
+                          title: c.name,
+                          subtitle: 'Abrir misiones',
+                          status: c.status,
+                          onTap: () => Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => CampaignMissionsScreen(
+                                campaignId: c.id,
+                                campaignName: c.name,
+                                isOwner: true,
+                              ),
                             ),
                           ),
                         ),
@@ -67,30 +83,59 @@ class MissionsHubScreen extends ConsumerWidget {
             loading: () => const LinearProgressIndicator(),
             error: (e, _) => Text('Error: $e'),
           ),
-          const Divider(height: 32),
-          Text('Mis envíos', style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 8),
+          const SizedBox(height: AppSpacing.lg),
+          const SectionHeader(title: 'Mis envíos'),
+          const SizedBox(height: AppSpacing.sm),
           submissionsAsync.when(
             data: (items) {
-              if (items.isEmpty) return const Text('Sin envíos todavía.');
+              if (items.isEmpty) {
+                return const EmptyState(
+                  icon: Icons.inbox_outlined,
+                  title: 'Sin envíos',
+                  message: 'Completa una misión para ver el estado de revisión aquí.',
+                );
+              }
               return Column(
                 children: items
                     .map(
-                      (s) => ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(s.status),
-                        subtitle: Text(
-                          '${s.description ?? 'Sin descripción'} · evidencias: ${s.evidenceCount}',
+                      (s) => Padding(
+                        padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                        child: AppCard(
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      s.description ?? 'Envío de misión',
+                                      style: Theme.of(context).textTheme.titleSmall,
+                                    ),
+                                    Text(
+                                      'Evidencias: ${s.evidenceCount}',
+                                      style: Theme.of(context).textTheme.bodySmall,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              StatusBadge(
+                                label: s.status,
+                                tone: toneForStatus(s.status),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     )
                     .toList(),
               );
             },
-            loading: () => const LinearProgressIndicator(),
-            error: (e, _) => Text('Error: $e'),
+            loading: () => const LoadingState(),
+            error: (e, _) => ErrorState(message: '$e'),
           ),
         ],
+          ),
+        ),
       ),
     );
   }
