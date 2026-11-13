@@ -27,7 +27,8 @@ class UserEntity(
 	var displayName: String,
 	@Column(name = "photo_url")
 	var photoUrl: String? = null,
-	@Column(name = "country_code")
+	@JdbcTypeCode(SqlTypes.CHAR)
+	@Column(name = "country_code", length = 2, columnDefinition = "bpchar(2)")
 	var countryCode: String? = null,
 	@Column(nullable = false)
 	var locale: String = "en",
