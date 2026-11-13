@@ -1,0 +1,129 @@
+openapi: 3.0.3
+info:
+  title: AppTrial API
+  version: 0.1.0
+  description: Phase 1 contracts — identity, profile, devices, wallet (provisional product name).
+servers:
+  - url: http://localhost:8080/api/v1
+paths:
+  /auth/register:
+    post:
+      summary: Register user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Created
+  /auth/login:
+    post:
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Tokens
+  /auth/refresh:
+    post:
+      summary: Rotate refresh token
+      responses:
+        '200':
+          description: Tokens
+  /auth/logout:
+    post:
+      summary: Revoke refresh token
+      responses:
+        '204':
+          description: No content
+  /auth/verify-email:
+    post:
+      responses:
+        '204':
+          description: No content
+  /auth/forgot-password:
+    post:
+      responses:
+        '202':
+          description: Accepted
+  /auth/reset-password:
+    post:
+      responses:
+        '204':
+          description: No content
+  /me:
+    get:
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Current user
+    patch:
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Updated user
+  /me/devices:
+    get:
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Device list
+    post:
+      security:
+        - bearerAuth: []
+      responses:
+        '201':
+          description: Device created
+  /me/devices/{deviceId}:
+    delete:
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: deviceId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Deleted
+  /wallet:
+    get:
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Wallet balances
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    RegisterRequest:
+      type: object
+      required: [email, password, displayName]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string, minLength: 8 }
+        displayName: { type: string }
+        roles:
+          type: array
+          items: { type: string, enum: [DEVELOPER, TESTER] }
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string }
+        password: { type: string }
