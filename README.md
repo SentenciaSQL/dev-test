@@ -35,7 +35,7 @@ infra/       docker-compose (Postgres, Redis, LocalStack S3)
 
 ## Estado actual
 
-**Fases 0–2:** auth/perfil/dispositivos/wallet, aplicaciones CRUD, campañas (borrador → publicar con reserva TC → cancelar/explorar), UI Flutter adaptada por rol.
+**Fases 0–3:** auth/perfil/dispositivos/wallet, apps/campañas con reserva TC, grupos de testers (auto-creación, join, confirm/drop).
 
 No se incluyen tests automatizados (restricción del proyecto).
 

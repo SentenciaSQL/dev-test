@@ -7,6 +7,7 @@ import '../../authentication/presentation/auth_controller.dart';
 import '../../campaigns/presentation/explore_campaigns_screen.dart';
 import '../../campaigns/presentation/my_campaigns_screen.dart';
 import '../../devices/presentation/devices_screen.dart';
+import '../../tester_groups/presentation/my_groups_screen.dart';
 import '../../wallet/presentation/wallet_screen.dart';
 import 'profile_screen.dart';
 
@@ -29,6 +30,7 @@ class _HomeShellState extends ConsumerState<HomeShell> {
     final pages = <Widget>[
       _HomeDashboard(displayName: user?.displayName ?? ''),
       if (isTester) const ExploreCampaignsScreen(),
+      if (isTester) const MyGroupsScreen(),
       if (isDeveloper) const ApplicationsScreen(),
       if (isDeveloper) const MyCampaignsScreen(),
       if (isTester) const DevicesScreen(),
@@ -40,6 +42,8 @@ class _HomeShellState extends ConsumerState<HomeShell> {
       const NavigationDestination(icon: Icon(Icons.home_outlined), label: 'Inicio'),
       if (isTester)
         const NavigationDestination(icon: Icon(Icons.explore_outlined), label: 'Explorar'),
+      if (isTester)
+        const NavigationDestination(icon: Icon(Icons.groups_outlined), label: 'Grupos'),
       if (isDeveloper)
         const NavigationDestination(icon: Icon(Icons.apps_outlined), label: 'Apps'),
       if (isDeveloper)
@@ -102,15 +106,9 @@ class _HomeDashboard extends ConsumerWidget {
           ),
           const SizedBox(height: 24),
           Text(
-            'Fase 2: registra apps, crea campañas en borrador y publícalas '
-            'reservando TestCredits. Los testers pueden explorar campañas en reclutamiento.',
+            'Fase 3: al publicar una campaña se crean grupos (default 15). '
+            'Los testers se unen con asignación automática; pueden confirmar o abandonar.',
             style: Theme.of(context).textTheme.bodyLarge,
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'Al publicar se reservan TC (7d=12, 14d=20, 30d=30 por tester). '
-            'Default: 15 testers. Plan Free: 1 app activa y 1 campaña no terminal.',
-            style: Theme.of(context).textTheme.bodyMedium,
           ),
         ],
       ),

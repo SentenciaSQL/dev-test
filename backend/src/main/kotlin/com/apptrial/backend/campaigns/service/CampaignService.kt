@@ -15,6 +15,7 @@ import com.apptrial.backend.shared.error.ForbiddenException
 import com.apptrial.backend.shared.error.NotFoundException
 import com.apptrial.backend.shared.error.ValidationApiException
 import com.apptrial.backend.shared.security.UserPrincipal
+import com.apptrial.backend.testergroups.service.TesterGroupService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
@@ -27,6 +28,7 @@ class CampaignService(
 	private val applicationService: ApplicationService,
 	private val creditWalletService: CreditWalletService,
 	private val reservationRepository: CreditReservationRepository,
+	private val testerGroupService: TesterGroupService,
 	private val props: AppProperties,
 ) {
 	companion object {
@@ -182,7 +184,9 @@ class CampaignService(
 		}
 		entity.status = "RECRUITING"
 		entity.updatedAt = now
-		return toResponse(campaignRepository.save(entity))
+		val saved = campaignRepository.save(entity)
+		testerGroupService.createGroupsForCampaign(saved)
+		return toResponse(saved)
 	}
 
 	@Transactional
@@ -214,7 +218,9 @@ class CampaignService(
 
 		entity.status = "CANCELLED"
 		entity.updatedAt = Instant.now()
-		return toResponse(campaignRepository.save(entity))
+		val saved = campaignRepository.save(entity)
+		testerGroupService.cancelGroupsForCampaign(saved.id)
+		return toResponse(saved)
 	}
 
 	private fun matchesFilters(campaign: CampaignEntity, country: String?, sdkInt: Int?): Boolean {
