@@ -128,6 +128,47 @@ Verifica con Play (modo `MOCK` local o `GOOGLE` con Android Publisher API).
 Acredita `PURCHASE` / activa suscripción + `SUBSCRIPTION_GRANT`.
 ### POST /billing/rtdn (Pub/Sub push, permitAll)
 
-## SSE (futuro)
+## Fase 7 — Notifications & Analytics
 
-`GET /campaigns/{id}/events` — text/event-stream para progreso.
+### GET /notifications
+Inbox del usuario (más recientes primero).
+
+### GET /notifications/unread-count → `{ unread }`
+
+### POST /notifications/{id}/read · POST /notifications/read-all
+
+### POST /push-tokens · DELETE /push-tokens
+Body: `{ fcmToken, platform?: "ANDROID" }`  
+Modo FCM: `apptrial.notifications.fcm-mode=MOCK|FIREBASE` (MOCK registra/loguea; FIREBASE requiere Admin SDK real).
+
+### GET/PUT /me/notification-preferences
+Mapa `eventType → boolean` (p. ej. `all`, `CAMPAIGN_PUBLISHED`).
+
+### GET /analytics/me
+Resumen del desarrollador (apps, campañas, plazas, misiones, créditos).
+
+### GET /analytics/platform
+Solo `ADMIN`: usuarios, roles, campañas, envíos, feedback.
+
+## Fase 8 — AI Assistant & Administration
+
+### GET /ai/campaigns/{campaignId}/insights
+Owner o ADMIN. Usa Spring AI OpenAI si hay `OPENAI_API_KEY`; si no, heurística local.  
+→ `{ campaignId, mode, feedbackSummary, issueClusters[], suggestedImprovements[], disclaimer }`
+
+### GET /admin/users (ADMIN)
+### POST /admin/users/{userId}/suspend `{ reason }`
+### POST /admin/users/{userId}/activate
+### POST /admin/users/{userId}/credits/adjust `{ amountTc, reason }`
+### POST /admin/campaigns/{campaignId}/cancel `{ reason }`
+
+## Fase 9 — SSE, antifraud & audit
+
+### GET /campaigns/{campaignId}/events
+`text/event-stream`. Owner, tester o ADMIN. Eventos: publish, join, group ready, etc.
+
+### GET /admin/fraud-signals
+Señales heurísticas: display names duplicados, reputación negativa, cuentas suspendidas.
+
+### GET /admin/audit-logs?limit=100
+Últimas acciones admin (suspend, adjust, cancel, …).

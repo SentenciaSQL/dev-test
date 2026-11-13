@@ -2,6 +2,8 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../administration/presentation/admin_screen.dart';
+import '../../analytics/presentation/analytics_screen.dart';
 import '../../applications/presentation/applications_screen.dart';
 import '../../authentication/presentation/auth_controller.dart';
 import '../../billing/presentation/billing_screen.dart';
@@ -9,6 +11,8 @@ import '../../campaigns/presentation/explore_campaigns_screen.dart';
 import '../../campaigns/presentation/my_campaigns_screen.dart';
 import '../../feedback/presentation/feedback_screen.dart';
 import '../../missions/presentation/missions_hub_screen.dart';
+import '../../notifications/presentation/notification_prefs_screen.dart';
+import '../../notifications/presentation/notifications_screen.dart';
 import '../../tester_groups/presentation/my_groups_screen.dart';
 import '../../wallet/presentation/wallet_screen.dart';
 import 'profile_screen.dart';
@@ -82,10 +86,20 @@ class _HomeDashboard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authControllerProvider).user;
+    final isAdmin = user?.isAdmin ?? false;
     return Scaffold(
       appBar: AppBar(
         title: const Text('AppTrial'),
         actions: [
+          IconButton(
+            tooltip: 'Notificaciones',
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => const NotificationsScreen(),
+              ),
+            ),
+            icon: const Icon(Icons.notifications_outlined),
+          ),
           IconButton(
             tooltip: 'Cerrar sesión',
             onPressed: () async {
@@ -110,7 +124,7 @@ class _HomeDashboard extends ConsumerWidget {
           ),
           const SizedBox(height: 24),
           Text(
-            'Fases 4–6 activas: misiones, evidencias, feedback, recompensas y Google Play Billing.',
+            'Fases 7–9: notificaciones FCM, analíticas, Spring AI, admin, SSE y auditoría.',
             style: Theme.of(context).textTheme.bodyLarge,
           ),
           const SizedBox(height: 16),
@@ -134,6 +148,24 @@ class _HomeDashboard extends ConsumerWidget {
             ),
           ListTile(
             contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.analytics_outlined),
+            title: const Text('Analíticas'),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(builder: (_) => const AnalyticsScreen()),
+            ),
+          ),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.notifications_active_outlined),
+            title: const Text('Preferencias de notificación'),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => const NotificationPrefsScreen(),
+              ),
+            ),
+          ),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.feedback_outlined),
             title: const Text('Feedback'),
             onTap: () => Navigator.of(context).push(
@@ -148,6 +180,15 @@ class _HomeDashboard extends ConsumerWidget {
               MaterialPageRoute<void>(builder: (_) => const BillingScreen()),
             ),
           ),
+          if (isAdmin)
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.admin_panel_settings_outlined),
+              title: const Text('Administración'),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(builder: (_) => const AdminScreen()),
+              ),
+            ),
         ],
       ),
     );

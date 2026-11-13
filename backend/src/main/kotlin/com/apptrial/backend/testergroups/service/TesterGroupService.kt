@@ -3,12 +3,15 @@ package com.apptrial.backend.testergroups.service
 import com.apptrial.backend.campaigns.domain.CampaignEntity
 import com.apptrial.backend.campaigns.domain.CampaignRepository
 import com.apptrial.backend.credits.service.CampaignSeatBillingService
+import com.apptrial.backend.notifications.service.NotificationService
 import com.apptrial.backend.shared.config.AppProperties
 import com.apptrial.backend.shared.error.ConflictException
 import com.apptrial.backend.shared.error.ForbiddenException
 import com.apptrial.backend.shared.error.NotFoundException
 import com.apptrial.backend.shared.error.ValidationApiException
 import com.apptrial.backend.shared.security.UserPrincipal
+import com.apptrial.backend.shared.sse.CampaignEventHub
+import com.apptrial.backend.shared.sse.CampaignSseEvent
 import com.apptrial.backend.testergroups.api.CampaignGroupResponse
 import com.apptrial.backend.testergroups.api.GroupMemberResponse
 import com.apptrial.backend.testergroups.domain.CampaignGroupEntity
@@ -26,6 +29,8 @@ class TesterGroupService(
 	private val groupRepository: CampaignGroupRepository,
 	private val memberRepository: GroupMemberRepository,
 	private val seatBillingService: CampaignSeatBillingService,
+	private val notificationService: NotificationService,
+	private val campaignEventHub: CampaignEventHub,
 	private val props: AppProperties,
 ) {
 	companion object {
@@ -150,6 +155,32 @@ class TesterGroupService(
 		)
 
 		refreshGroupAndCampaignStatus(target, campaign)
+		notificationService.notify(
+			userId = principal.id,
+			eventType = "CAMPAIGN_JOINED",
+			title = "Te uniste a una campaña",
+			body = "Asignado a ${target.name} en “${campaign.name}”.",
+			payload = mapOf(
+				"campaignId" to campaign.id.toString(),
+				"groupId" to target.id.toString(),
+			),
+		)
+		notificationService.notify(
+			userId = campaign.createdByUserId,
+			eventType = "TESTER_JOINED",
+			title = "Nuevo tester",
+			body = "Un tester se unió a “${campaign.name}” (${target.name}).",
+			payload = mapOf("campaignId" to campaign.id.toString()),
+		)
+		campaignEventHub.publish(
+			campaign.id,
+			CampaignSseEvent(
+				type = "member_joined",
+				campaignId = campaign.id.toString(),
+				message = target.name,
+				payload = mapOf("groupId" to target.id.toString(), "userId" to principal.id.toString()),
+			),
+		)
 		return toGroupResponse(
 			groupRepository.findById(target.id).orElse(target),
 			campaignRepository.findById(campaign.id).orElse(campaign),

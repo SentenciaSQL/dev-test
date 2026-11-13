@@ -14,7 +14,10 @@ import com.apptrial.backend.shared.error.ConflictException
 import com.apptrial.backend.shared.error.ForbiddenException
 import com.apptrial.backend.shared.error.NotFoundException
 import com.apptrial.backend.shared.error.ValidationApiException
+import com.apptrial.backend.notifications.service.NotificationService
 import com.apptrial.backend.shared.security.UserPrincipal
+import com.apptrial.backend.shared.sse.CampaignEventHub
+import com.apptrial.backend.shared.sse.CampaignSseEvent
 import com.apptrial.backend.testergroups.service.TesterGroupService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -29,6 +32,8 @@ class CampaignService(
 	private val creditWalletService: CreditWalletService,
 	private val reservationRepository: CreditReservationRepository,
 	private val testerGroupService: TesterGroupService,
+	private val notificationService: NotificationService,
+	private val campaignEventHub: CampaignEventHub,
 	private val props: AppProperties,
 ) {
 	companion object {
@@ -186,6 +191,22 @@ class CampaignService(
 		entity.updatedAt = now
 		val saved = campaignRepository.save(entity)
 		testerGroupService.createGroupsForCampaign(saved)
+		notificationService.notify(
+			userId = principal.id,
+			eventType = "CAMPAIGN_PUBLISHED",
+			title = "Campaña en reclutamiento",
+			body = "“${saved.name}” ya está reclutando testers.",
+			payload = mapOf("campaignId" to saved.id.toString()),
+		)
+		campaignEventHub.publish(
+			saved.id,
+			CampaignSseEvent(
+				type = "campaign_status",
+				campaignId = saved.id.toString(),
+				message = "RECRUITING",
+				payload = mapOf("status" to "RECRUITING"),
+			),
+		)
 		return toResponse(saved)
 	}
 

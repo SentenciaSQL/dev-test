@@ -39,6 +39,13 @@ management:
     health:
       show-details: when_authorized
 
+spring.ai:
+  openai:
+    api-key: ${OPENAI_API_KEY:}
+    chat:
+      options:
+        model: ${OPENAI_MODEL:gpt-4o-mini}
+
 apptrial:
   security:
     jwt-secret: ${JWT_SECRET:change-me-to-a-long-random-secret-at-least-256-bits-long!!}
@@ -59,6 +66,11 @@ apptrial:
     free-initial-grant: 20
     default-group-size: 15
     min-group-size: 12
+  notifications:
+    fcm-mode: ${FCM_MODE:MOCK}
+  ai:
+    enabled: ${AI_ENABLED:true}
+    max-input-chars: 8000
 
 logging:
   level:
