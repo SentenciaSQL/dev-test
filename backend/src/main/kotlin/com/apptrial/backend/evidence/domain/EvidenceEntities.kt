@@ -14,7 +14,7 @@ class EvidenceFileEntity(
 	var id: UUID = UUID.randomUUID(),
 	@Column(name = "submission_id", nullable = false)
 	var submissionId: UUID,
-	@Column(name = "storage_key", nullable = false)
+	@Column(name = "storage_key", nullable = false, columnDefinition = "text")
 	var storageKey: String,
 	@Column(name = "content_type", nullable = false)
 	var contentType: String,

@@ -20,7 +20,7 @@ class NotificationEntity(
 	var eventType: String,
 	@Column(nullable = false)
 	var title: String,
-	@Column(nullable = false)
+	@Column(nullable = false, columnDefinition = "text")
 	var body: String,
 	@JdbcTypeCode(SqlTypes.JSON)
 	@Column(nullable = false, columnDefinition = "jsonb")
@@ -38,7 +38,7 @@ class PushTokenEntity(
 	var id: UUID = UUID.randomUUID(),
 	@Column(name = "user_id", nullable = false)
 	var userId: UUID,
-	@Column(name = "fcm_token", nullable = false)
+	@Column(name = "fcm_token", nullable = false, columnDefinition = "text")
 	var fcmToken: String,
 	@Column(nullable = false)
 	var platform: String = "ANDROID",

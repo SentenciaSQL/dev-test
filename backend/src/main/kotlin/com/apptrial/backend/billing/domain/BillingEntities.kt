@@ -56,9 +56,9 @@ class PaymentEntity(
 	var orderId: UUID,
 	@Column(name = "user_id", nullable = false)
 	var userId: UUID,
-	@Column(name = "purchase_token", nullable = false, unique = true)
+	@Column(name = "purchase_token", nullable = false, unique = true, columnDefinition = "text")
 	var purchaseToken: String,
-	@Column(name = "play_order_id")
+	@Column(name = "play_order_id", columnDefinition = "text")
 	var playOrderId: String? = null,
 	@Column(name = "package_name", nullable = false)
 	var packageName: String,
@@ -104,7 +104,7 @@ class SubscriptionEntity(
 	var userId: UUID,
 	@Column(name = "plan_id", nullable = false)
 	var planId: UUID,
-	@Column(name = "purchase_token")
+	@Column(name = "purchase_token", columnDefinition = "text")
 	var purchaseToken: String? = null,
 	@Column(nullable = false)
 	var status: String = "ACTIVE",

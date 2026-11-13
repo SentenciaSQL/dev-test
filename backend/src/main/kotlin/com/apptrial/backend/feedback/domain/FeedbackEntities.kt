@@ -20,7 +20,7 @@ class FeedbackReportEntity(
 	var reportType: String,
 	@Column(nullable = false)
 	var title: String,
-	@Column(nullable = false)
+	@Column(nullable = false, columnDefinition = "text")
 	var body: String,
 	var severity: String? = null,
 	@Column(nullable = false)
